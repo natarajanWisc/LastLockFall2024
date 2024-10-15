@@ -5,6 +5,7 @@ import RoomModal from './RoomModal';
 import geoJSONCollection from '../assets/floorMap';
 
 const AMERICAN_CENTER = [-100, 40];
+const PADDING = 50;
 
 function MapboxContainer() {
     const mapRef = useRef();
@@ -12,6 +13,15 @@ function MapboxContainer() {
     const [selectedRoom, setSelectedRoom] = useState(null);
     const [selectedBuilding, setSelectedBuilding] = useState(null);
     const [buildings, setBuildings] = useState([]);
+    //New debugging code
+    const [debugInfo, setDebugInfo] = useState({
+        startingZoom: null,
+        startingFitBounds: null,
+        startingMinZoom: null,
+        currentMaxBounds: null,
+        currentMinZoom: null,
+        currentZoom: null,
+    });
 
     useEffect(() => {
         // Parse geoJSONCollection to create the buildings array
@@ -27,11 +37,34 @@ function MapboxContainer() {
     useEffect(() => {     
         mapboxgl.accessToken = 'pk.eyJ1IjoianVzdGluYmlsZG5lciIsImEiOiJjbTIyM3c0azUwMnllMmxuNzFwY3V0Y204In0.n4K--AHy82A8xh9JxeLUnw';
 
+        if (!selectedBuilding) {
+            // Initialize map with default view if no building is selected
+            mapRef.current = new mapboxgl.Map({
+                container: mapContainerRef.current,
+                style: 'mapbox://styles/mapbox/dark-v11',
+                center: AMERICAN_CENTER,
+                zoom: 2.9
+            });
+            return;
+        }
+
+
+        // Calculate bounds of the selected building
+        const bounds = new mapboxgl.LngLatBounds();
+        selectedBuilding.geoJSON.features.forEach(feature => {
+            if (feature.geometry.type === 'Polygon') {
+                feature.geometry.coordinates[0].forEach(coord => {
+                    bounds.extend(coord);
+                });
+            }
+        });
+
+        // Initialize map with calculated bounds
         mapRef.current = new mapboxgl.Map({
             container: mapContainerRef.current,
             style: 'mapbox://styles/mapbox/dark-v11',
-            center: selectedBuilding ? selectedBuilding.coordinates : AMERICAN_CENTER,
-            zoom: selectedBuilding ? 18.2 : 2.9
+            bounds: bounds,
+            fitBoundsOptions: { padding: PADDING }
         });
 
         mapRef.current.on('load', () => {
@@ -94,6 +127,43 @@ function MapboxContainer() {
                         .addTo(mapRef.current);
                 }
             });
+
+            // Set max bounds with padding
+            // const maxBounds = bounds.toArray();
+            // const sw = mapRef.current.project(maxBounds[0]);
+            // const ne = mapRef.current.project(maxBounds[1]);
+            // const paddedSw = mapRef.current.unproject([sw.x - PADDING, sw.y + PADDING]);
+            // const paddedNe = mapRef.current.unproject([ne.x + PADDING, ne.y - PADDING]);
+            // mapRef.current.setMaxBounds(new mapboxgl.LngLatBounds(paddedSw, paddedNe));
+
+            // Set max bounds based on the initial viewport
+            const initialBounds = mapRef.current.getBounds();
+            mapRef.current.setMaxBounds(initialBounds);
+
+            // Set minimum zoom level
+            const initialZoom = mapRef.current.getZoom();
+            mapRef.current.setMinZoom(initialZoom - 0.5); // Allow slight zoom out
+
+            // Update debug info
+            setDebugInfo({
+                startingZoom: mapRef.current.getZoom(),
+                startingFitBounds: initialBounds.toString(),
+                startingMinZoom: mapRef.current.getMinZoom(),
+                currentMaxBounds: mapRef.current.getMaxBounds().toString(),
+                currentMinZoom: mapRef.current.getMinZoom(),
+                currentZoom: mapRef.current.getZoom(),
+            });
+
+            // Add move event listener to update current zoom
+            mapRef.current.on('move', () => {
+                setDebugInfo(prevInfo => ({
+                    ...prevInfo,
+                    currentZoom: mapRef.current.getZoom(),
+                    currentMaxBounds: mapRef.current.getMaxBounds().toString(),
+                    currentMinZoom: mapRef.current.getMinZoom(),
+                }));
+            });
+
         });
         
         return () => {
@@ -133,6 +203,26 @@ function MapboxContainer() {
                         onClose={() => setSelectedRoom(null)}
                     />
                 )}
+                                <div className="debug-overlay" style={{
+                    position: 'absolute',
+                    top: '10px',
+                    left: '10px',
+                    background: 'rgba(0,0,0,0.7)',
+                    color: 'white',
+                    padding: '10px',
+                    borderRadius: '5px',
+                    fontSize: '12px',
+                    maxWidth: '300px',
+                    zIndex: 1000,
+                }}>
+                    <h3>Debug Info</h3>
+                    <p>Starting Zoom: {debugInfo.startingZoom?.toFixed(2)}</p>
+                    <p>Starting Fit Bounds: {debugInfo.startingFitBounds}</p>
+                    <p>Starting Min Zoom: {debugInfo.startingMinZoom?.toFixed(2)}</p>
+                    <p>Current Max Bounds: {debugInfo.currentMaxBounds}</p>
+                    <p>Current Min Zoom: {debugInfo.currentMinZoom?.toFixed(2)}</p>
+                    <p>Current Zoom: {debugInfo.currentZoom?.toFixed(2)}</p>
+                </div>
             </div>
         </div>
     );}
