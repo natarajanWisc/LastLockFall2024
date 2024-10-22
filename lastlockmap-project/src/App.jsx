@@ -7,15 +7,17 @@ import './App.css';
 function App() {
   // State to track if the user is logged in
   const [loggedIn, setLoggedIn] = useState(false);
+  const [username, setUsername] = useState('')
 
-  // Function to handle successful login
-  const handleLogin = (email, password) => {
+    // Function to handle successful login
+    const handleLogin = (username, password) => {
     // For simplicity, we're assuming login is successful here
     // In a real application, you'd validate login credentials with an API
-    console.log('Logged in:', { email, password });
+    console.log('Logged in:', { username, password });
     
     // You could validate here before setting loggedIn to true
-    if (email === 'admin' && password === 'admin') {
+    if ((username === 'admin' || username === 'joeuntrecht' || username === 'eligauger') && password === 'password') {
+      setUsername(username)
       setLoggedIn(true);
     } else {
       alert("Invalid login credentials. Please try again.");
@@ -26,7 +28,7 @@ function App() {
     <div className="App">
       {loggedIn ? (
         // Show MapboxContainer if the user is logged in
-        <MapboxContainer />
+        <MapboxContainer username={username}/>
       ) : (
         // Show LoginPage if the user is not logged in
         <LoginPage onLogin={handleLogin} />
