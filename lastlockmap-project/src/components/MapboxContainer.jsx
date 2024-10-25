@@ -215,13 +215,7 @@ function MapboxContainer() {
                     maxWidth: '300px',
                     zIndex: 1000,
                 }}>
-                    <h3>Debug Info</h3>
-                    <p>Starting Zoom: {debugInfo.startingZoom?.toFixed(2)}</p>
-                    <p>Starting Fit Bounds: {debugInfo.startingFitBounds}</p>
-                    <p>Starting Min Zoom: {debugInfo.startingMinZoom?.toFixed(2)}</p>
-                    <p>Current Max Bounds: {debugInfo.currentMaxBounds}</p>
-                    <p>Current Min Zoom: {debugInfo.currentMinZoom?.toFixed(2)}</p>
-                    <p>Current Zoom: {debugInfo.currentZoom?.toFixed(2)}</p>
+                   
                 </div>
             </div>
         </div>
