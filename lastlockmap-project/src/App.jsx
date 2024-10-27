@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import MapboxContainer from './components/MapboxContainer';
 import NewMapPage from './pages/NewMapPage';
 import Navigation from './components/Navigation';
@@ -26,22 +26,13 @@ function App() {
     }
   };
 
+  //what does <Navigation /> do?
   return (
     <Router>
-      <Navigation />
+      <Navigation/>
       <Routes>
-      <Route 
-          path="/" 
-          element={loggedIn ? <Navigate to="/map" /> : <LoginPage onLogin={handleLogin} />}
-        />
-        <Route 
-          path="/map" 
-          element={loggedIn ? <MapboxContainer username={username} /> : <Navigate to="/" />}
-        />
-        <Route 
-          path="/new-map-page" 
-          element={loggedIn ? <NewMapPage /> : <Navigate to="/" />}
-        />
+        {loggedIn ? <Route path="/" element={<MapboxContainer username={username} />}/>: <Route path="/" element= {<LoginPage onLogin={handleLogin} />}/>}
+        <Route path="/new-map-page" element={<NewMapPage />} />
       </Routes>
     </Router>
   );
