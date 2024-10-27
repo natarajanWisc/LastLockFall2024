@@ -3,46 +3,27 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import RoomModal from './RoomModal';
 import geoJSONCollection from '../assets/floorMap';
+import locksGeoJSON from '../assets/locks';
 
 const AMERICAN_CENTER = [-100, 40];
 const PADDING = 50;
 
-
-//floor ids are UNION_SOUTH_IV and UNION_SOUTH_I
-function MapboxContainer({username}) {
+function TimeSeries() {
     const mapRef = useRef();
     const mapContainerRef = useRef();
     const [selectedRoom, setSelectedRoom] = useState(null);
     const [selectedBuilding, setSelectedBuilding] = useState(null);
     const [buildings, setBuildings] = useState([]);
-    //New debugging code
-    const [debugInfo, setDebugInfo] = useState({
-        startingZoom: null,
-        startingFitBounds: null,
-        startingMinZoom: null,
-        currentMaxBounds: null,
-        currentMinZoom: null,
-        currentZoom: null,
-    });
+    const [time, setTime] = useState(12); // Initial time
 
     useEffect(() => {
         // Parse geoJSONCollection to create the buildings array
-        let buildingsArray = Object.entries(geoJSONCollection).map(([id, data]) => ({
+        const buildingsArray = Object.entries(geoJSONCollection).map(([id, data]) => ({
           id,
           name: data.name,
           coordinates: JSON.parse(data.map_coordinates),
           geoJSON: data
         }));
-
-        // Filter buildings based on the logged-in user's username
-        if (username === 'admin') {
-            buildingsArray = buildingsArray.filter(building => ['UNION_SOUTH_IV', 'UNION_SOUTH_I'].includes(building.id));
-        } else if (username === 'joeuntrecht') {
-            buildingsArray = buildingsArray.filter(building => building.id === 'UNION_SOUTH_IV');
-        } else if (username === 'eligauger') {
-            buildingsArray = buildingsArray.filter(building => building.id === 'UNION_SOUTH_I');
-        }
-
         setBuildings(buildingsArray);
     }, []);
 
@@ -59,7 +40,6 @@ function MapboxContainer({username}) {
             });
             return;
         }
-
 
         // Calculate bounds of the selected building
         const bounds = new mapboxgl.LngLatBounds();
@@ -108,45 +88,49 @@ function MapboxContainer({username}) {
                 }
             });
 
-            // Add clickable points for each room -- will eventually be a part of the geoJSON
-            selectedBuilding.geoJSON.features.forEach((feature, index) => {
-                if (feature.geometry.type === 'Polygon') {
-                    const coordinates = feature.geometry.coordinates[0];
-                    const center = coordinates.reduce((acc, coord) => {
-                        return [acc[0] + coord[0], acc[1] + coord[1]];
-                    }, [0, 0]).map(sum => sum / coordinates.length);
+            // Add the GeoJSON data as a source for the locks
+            console.log('Loading GeoJSON data:', locksGeoJSON);
+            mapRef.current.addSource('locks', {
+                type: 'geojson',
+                data: locksGeoJSON,
+            });
 
-                    const el = document.createElement('div'); // creating the dots for each room
-                    el.className = 'room-marker';
-                    el.style.backgroundColor = '#007bff';
-                    el.style.width = '12px';
-                    el.style.height = '12px';
-                    el.style.borderRadius = '50%';
-                    el.style.cursor = 'pointer';
-
-                    // handles click on each room
-                    el.addEventListener('click', () => {
-                        setSelectedRoom({
-                            name: feature.properties.Name || `Room ${index + 1}`,
-                            hours: feature.properties.Hours || 'Not specified',
-                            lastEntry: feature.properties.LastEntry || 'No recent entries',
-                            lockBattery: feature.properties.LockBattery || 'Unknown'
-                        });
-                    });
-
-                    new mapboxgl.Marker(el)
-                        .setLngLat(center)
-                        .addTo(mapRef.current);
+            // Verify the presence of the 'hour' property in the GeoJSON data
+            locksGeoJSON.features.forEach(feature => {
+                if (typeof feature.properties.hour !== 'number') {
+                    console.error('Invalid or missing "hour" property in feature:', feature);
                 }
             });
 
-            // Set max bounds with padding
-            // const maxBounds = bounds.toArray();
-            // const sw = mapRef.current.project(maxBounds[0]);
-            // const ne = mapRef.current.project(maxBounds[1]);
-            // const paddedSw = mapRef.current.unproject([sw.x - PADDING, sw.y + PADDING]);
-            // const paddedNe = mapRef.current.unproject([ne.x + PADDING, ne.y - PADDING]);
-            // mapRef.current.setMaxBounds(new mapboxgl.LngLatBounds(paddedSw, paddedNe));
+            // Add a circle layer to render the lock data
+            console.log('Adding circle layer for locks');
+            mapRef.current.addLayer({
+                id: 'locks-circles',
+                type: 'circle',
+                source: 'locks',
+                paint: {
+                    'circle-radius':  [
+                        'interpolate',
+                        ['linear'],
+                        ['get', 'intensity'],
+                        1, 5, // Minimum intensity, minimum radius
+                        10, 20 // Maximum intensity, maximum radius
+                    ],
+                    'circle-color': [
+    'interpolate',
+    ['linear'],
+    ['get', 'intensity'], // Get the intensity property from the feature
+    1, 'green',  // Minimum intensity, green color
+    5, 'yellow', // Medium intensity, yellow color
+    10, 'red'   // Maximum intensity, red color
+],
+
+                    'circle-stroke-color': 'white',
+                    'circle-stroke-width': 1,
+                    'circle-opacity': 0.8
+                },
+                filter: ['==', ['number', ['get', 'hour']], time] // Initial filter based on time
+            });
 
             // Set max bounds based on the initial viewport
             const initialBounds = mapRef.current.getBounds();
@@ -156,26 +140,7 @@ function MapboxContainer({username}) {
             const initialZoom = mapRef.current.getZoom();
             mapRef.current.setMinZoom(initialZoom - 0.5); // Allow slight zoom out
 
-            // Update debug info
-            setDebugInfo({
-                startingZoom: mapRef.current.getZoom(),
-                startingFitBounds: initialBounds.toString(),
-                startingMinZoom: mapRef.current.getMinZoom(),
-                currentMaxBounds: mapRef.current.getMaxBounds().toString(),
-                currentMinZoom: mapRef.current.getMinZoom(),
-                currentZoom: mapRef.current.getZoom(),
-            });
-
             // Add move event listener to update current zoom
-            mapRef.current.on('move', () => {
-                setDebugInfo(prevInfo => ({
-                    ...prevInfo,
-                    currentZoom: mapRef.current.getZoom(),
-                    currentMaxBounds: mapRef.current.getMaxBounds().toString(),
-                    currentMinZoom: mapRef.current.getMinZoom(),
-                }));
-            });
-
         });
         
         return () => {
@@ -190,6 +155,23 @@ function MapboxContainer({username}) {
         const selected = buildings.find(building => building.id === buildingId);
         setSelectedBuilding(selected);
     }
+
+    const handleTimeChange = (event) => {
+        const hour = parseInt(event.target.value);
+        setTime(hour);
+        console.log('Updating filter for hour:', hour);
+        // Update the map filter
+        if (mapRef.current.getLayer('locks-circles')) {
+            mapRef.current.setFilter('locks-circles', ['==', ['number', ['get', 'hour']], hour]);
+        }
+
+        // Convert 0-23 hour to AMPM format
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        const hour12 = hour % 12 ? hour % 12 : 12;
+
+        // Update text in the UI
+        document.getElementById('active-hour').innerText = hour12 + ampm;
+    };
 
     return (
         <div className="outer-container">
@@ -215,7 +197,7 @@ function MapboxContainer({username}) {
                         onClose={() => setSelectedRoom(null)}
                     />
                 )}
-                                <div className="debug-overlay" style={{
+                <div className="debug-overlay" style={{
                     position: 'absolute',
                     top: '10px',
                     left: '10px',
@@ -227,10 +209,24 @@ function MapboxContainer({username}) {
                     maxWidth: '300px',
                     zIndex: 1000,
                 }}>
-                   
+                    <h3>Time Series Visualization</h3>
+                    <div className="session" id="sliderbar">
+                        <h2>Hour: <label id="active-hour">12PM</label></h2>
+                        <input
+                            id="slider"
+                            className="row"
+                            type="range"
+                            min="0"
+                            max="23"
+                            step="1"
+                            value={time}
+                            onChange={handleTimeChange}
+                        />
+                    </div>
                 </div>
             </div>
         </div>
-    );}
+    );
+}
 
-export default MapboxContainer;
+export default TimeSeries;
