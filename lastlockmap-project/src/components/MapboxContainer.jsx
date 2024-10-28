@@ -7,7 +7,9 @@ import geoJSONCollection from '../assets/floorMap';
 const AMERICAN_CENTER = [-100, 40];
 const PADDING = 50;
 
-function MapboxContainer() {
+
+//floor ids are UNION_SOUTH_IV and UNION_SOUTH_I
+function MapboxContainer({username}) {
     const mapRef = useRef();
     const mapContainerRef = useRef();
     const [selectedRoom, setSelectedRoom] = useState(null);
@@ -25,12 +27,22 @@ function MapboxContainer() {
 
     useEffect(() => {
         // Parse geoJSONCollection to create the buildings array
-        const buildingsArray = Object.entries(geoJSONCollection).map(([id, data]) => ({
+        let buildingsArray = Object.entries(geoJSONCollection).map(([id, data]) => ({
           id,
           name: data.name,
           coordinates: JSON.parse(data.map_coordinates),
           geoJSON: data
         }));
+
+        // Filter buildings based on the logged-in user's username
+        if (username === 'admin') {
+            buildingsArray = buildingsArray.filter(building => ['UNION_SOUTH_IV', 'UNION_SOUTH_I'].includes(building.id));
+        } else if (username === 'joeuntrecht') {
+            buildingsArray = buildingsArray.filter(building => building.id === 'UNION_SOUTH_IV');
+        } else if (username === 'eligauger') {
+            buildingsArray = buildingsArray.filter(building => building.id === 'UNION_SOUTH_I');
+        }
+
         setBuildings(buildingsArray);
     }, []);
 
