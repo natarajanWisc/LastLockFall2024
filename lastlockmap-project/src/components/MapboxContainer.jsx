@@ -203,7 +203,7 @@ function MapboxContainer() {
                         onClose={() => setSelectedRoom(null)}
                     />
                 )}
-                                <div className="debug-overlay" style={{
+                <div className="debug-overlay" style={{
                     position: 'absolute',
                     top: '10px',
                     left: '10px',
