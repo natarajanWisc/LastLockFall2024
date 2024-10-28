@@ -14,6 +14,7 @@ const RoomModal = ({ room, onClose }) => {
     const [openingTime, setOpeningTime] = useState(null);
     const [closingTime, setClosingTime] = useState(null);
     const [timePickerStep, setTimePickerStep] = useState(1);
+    const [isSavingTime, setIsSavingTime] = useState(false);
 
     useEffect(() => {
         const savedHours = localStorage.getItem(getHoursStorageKey());
@@ -71,6 +72,7 @@ const RoomModal = ({ room, onClose }) => {
         borderBottom: '1px solid #4091F7',
         paddingBottom: '10px',
         position: 'relative',
+        fontSize: '24px'
     };
 
     const hoursInfoStyle = {
@@ -155,6 +157,7 @@ const RoomModal = ({ room, onClose }) => {
     const mostRecent =  `${roomLog[0].name} (${roomLog[0].hierarchy}) - ${roomLog[0].date} ${roomLog[0].time}`
     
     const handleTimeSet = (time, type) => {
+        console.log(time);
         if (timePickerStep === 1) {
             if (type === 'opening') {
                 setOpeningTime(time);
@@ -171,7 +174,9 @@ const RoomModal = ({ room, onClose }) => {
             }
             const hours = `${openingTime || '??:??'} - ${closingTime || '??:??'}`;
             setRoomHours(hours);
+            setIsSavingTime(true);
             localStorage.setItem(getHoursStorageKey(), hours);
+            setIsSavingTime(false);
         }
     };
 
