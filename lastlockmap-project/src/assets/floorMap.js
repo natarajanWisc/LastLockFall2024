@@ -7,7 +7,9 @@ const geoJSONCollection = {
         {
             "type": "Feature",
             "properties": {
-                "Name": "Truck Bay"
+                "Name": "Truck Bay",
+                "Rentable": true,
+                "Rented": false,
             },
             "geometry": {
                 "type": "Polygon",
@@ -443,7 +445,10 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
-                    "Name": null,
+                    //edited name here to simulate a conferenece Room
+                    "Name": "Conference Room",
+                    "Rentable": true,
+                    "Rented": false,
                     "Label": null,
                     "SHAPE_Leng": 0.00473181661376,
                     "SHAPE_Area": 8.96614151744e-8
