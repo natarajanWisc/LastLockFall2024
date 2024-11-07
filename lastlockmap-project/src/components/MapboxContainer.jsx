@@ -3,6 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import RoomModal from './RoomModal';
 import geoJSONCollection from '../assets/floorMap';
+import locksGeoJSON from '../assets/locks';
 
 const AMERICAN_CENTER = [-100, 40];
 const PADDING = 50;
@@ -15,6 +16,8 @@ function MapboxContainer({username}) {
     const [selectedRoom, setSelectedRoom] = useState(null);
     const [selectedBuilding, setSelectedBuilding] = useState(null);
     const [buildings, setBuildings] = useState([]);
+    const [showTimeSeries, setShowTimeSeries] = useState(true); // State for checkbox
+    const [time, setTime] = useState(12); // Initial time
     //New debugging code
     const [debugInfo, setDebugInfo] = useState({
         startingZoom: null,
@@ -108,6 +111,47 @@ function MapboxContainer({username}) {
                 }
             });
 
+            // Add the GeoJSON data as a source for the locks
+            console.log('Loading GeoJSON data:', locksGeoJSON);
+            mapRef.current.addSource('locks', {
+            type: 'geojson',
+            data: locksGeoJSON,
+            });
+            // Verify the presence of the 'hour' property in the GeoJSON data
+    locksGeoJSON.features.forEach(feature => {
+        if (typeof feature.properties.hour !== 'number') {
+          console.error('Invalid or missing "hour" property in feature:', feature);
+        }
+      });
+            // Add a heatmap layer to render the lock data
+        console.log('Adding heatmap layer for locks');
+        mapRef.current.addLayer({
+            id: 'locks-circles',
+            type: 'circle',
+            source: 'locks',
+            paint: {
+                'circle-radius':  [
+                    'interpolate',
+                    ['linear'],
+                    ['get', 'intensity'],
+                    1, 5, // Minimum intensity, minimum radius
+                    10, 20 // Maximum intensity, maximum radius
+                ],
+                'circle-color': [
+'interpolate',
+['linear'],
+['get', 'intensity'], // Get the intensity property from the feature
+1, 'green',  // Minimum intensity, green color
+5, 'yellow', // Medium intensity, yellow color
+10, 'red'   // Maximum intensity, red color
+],
+
+                'circle-stroke-color': 'white',
+                'circle-stroke-width': 1,
+                'circle-opacity': 0.8
+            },
+            filter: ['==', ['number', ['get', 'hour']], time] // Initial filter based on time
+        });
             // Add clickable points for each room -- will eventually be a part of the geoJSON
             selectedBuilding.geoJSON.features.forEach((feature, index) => {
                 if (feature.geometry.type === 'Polygon') {
@@ -183,13 +227,39 @@ function MapboxContainer({username}) {
                 mapRef.current.remove();
             }
         };
-    }, [selectedBuilding]);
+    }, [selectedBuilding, time]);
+    useEffect(() => {
+        if (showTimeSeries) {
+          setTime(12); // Set default hour to 12
+          console.log('Time series visualization enabled, setting default hour to 12');
+          // Update the map filter
+          if (mapRef.current && mapRef.current.getLayer('locks-heatmap')) {
+            mapRef.current.setFilter('locks-heatmap', ['==', ['number', ['get', 'hour']], 12]);
+          }
+        }
+      }, [showTimeSeries]);
 
     function handleFloorSelection(event) {
         const buildingId = event.target.value;
         const selected = buildings.find(building => building.id === buildingId);
         setSelectedBuilding(selected);
     }
+    const handleTimeChange = (event) => {
+        const hour = parseInt(event.target.value);
+        setTime(hour);
+        console.log('Updating filter for hour:', hour);
+        // Update the map filter
+        if (mapRef.current.getLayer('locks-heatmap')) {
+          mapRef.current.setFilter('locks-heatmap', ['==', ['number', ['get', 'hour']], hour]);
+        }
+    
+        // Convert 0-23 hour to AMPM format
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        const hour12 = hour % 12 ? hour % 12 : 12;
+    
+        // Update text in the UI
+        document.getElementById('active-hour').innerText = hour12 + ampm;
+      };
 
     return (
         <div className="outer-container">
@@ -227,7 +297,30 @@ function MapboxContainer({username}) {
                     maxWidth: '300px',
                     zIndex: 1000,
                 }}>
-                   
+                
+          <label>
+            <input
+              type="checkbox"
+              checked={showTimeSeries}
+              onChange={() => setShowTimeSeries(!showTimeSeries)}
+            />
+            Show Time Series
+          </label>
+          {showTimeSeries && (
+            <div className="session" id="sliderbar">
+              <h2>Hour: <label id="active-hour">12PM</label></h2>
+              <input
+                id="slider"
+                className="row"
+                type="range"
+                min="0"
+                max="23"
+                step="1"
+                value={time}
+                onChange={handleTimeChange}
+              />
+            </div>
+          )}
                 </div>
             </div>
         </div>
