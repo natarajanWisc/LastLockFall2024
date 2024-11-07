@@ -16,7 +16,7 @@ function MapboxContainer({username}) {
     const [selectedRoom, setSelectedRoom] = useState(null);
     const [selectedBuilding, setSelectedBuilding] = useState(null);
     const [buildings, setBuildings] = useState([]);
-    const [showTimeSeries, setShowTimeSeries] = useState(true); // State for checkbox
+    const [showTimeSeries, setShowTimeSeries] = useState(false); // State for checkbox
     const [time, setTime] = useState(12); // Initial time
     //New debugging code
     const [debugInfo, setDebugInfo] = useState({
@@ -150,6 +150,9 @@ function MapboxContainer({username}) {
                 'circle-stroke-width': 1,
                 'circle-opacity': 0.8
             },
+            layout: {
+                'visibility': 'none'
+            },
             filter: ['==', ['number', ['get', 'hour']], time] // Initial filter based on time
         });
             // Add clickable points for each room -- will eventually be a part of the geoJSON
@@ -244,6 +247,13 @@ function MapboxContainer({username}) {
           }
         }
       }, [showTimeSeries]);
+      useEffect(() => {
+        if (mapRef.current && mapRef.current.getLayer('locks-circles')) {
+            const visibility = showTimeSeries ? 'visible' : 'none';
+            mapRef.current.setLayoutProperty('locks-circles', 'visibility', visibility);
+            console.log(`Heatmap visibility set to: ${visibility}`);
+        }
+    }, [showTimeSeries]);
 
     function handleFloorSelection(event) {
         const buildingId = event.target.value;
