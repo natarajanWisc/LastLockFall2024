@@ -227,7 +227,13 @@ function MapboxContainer({username}) {
                 mapRef.current.remove();
             }
         };
-    }, [selectedBuilding, time]);
+    }, [selectedBuilding]);
+    useEffect(() => {
+        if (mapRef.current && mapRef.current.getLayer('locks-circles')) {
+          mapRef.current.setFilter('locks-circles', ['==', ['number', ['get', 'hour']], time]);
+          console.log('Updated filter for hour:', time);
+        }
+      }, [time]);
     useEffect(() => {
         if (showTimeSeries) {
           setTime(12); // Set default hour to 12
