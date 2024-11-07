@@ -130,31 +130,30 @@ function MapboxContainer({username}) {
             type: 'circle',
             source: 'locks',
             paint: {
-                'circle-radius':  [
-                    'interpolate',
-                    ['linear'],
-                    ['get', 'intensity'],
-                    1, 5, // Minimum intensity, minimum radius
-                    10, 20 // Maximum intensity, maximum radius
-                ],
-                'circle-color': [
-'interpolate',
-['linear'],
-['get', 'intensity'], // Get the intensity property from the feature
-1, 'green',  // Minimum intensity, green color
-5, 'yellow', // Medium intensity, yellow color
-10, 'red'   // Maximum intensity, red color
-],
-
-                'circle-stroke-color': 'white',
-                'circle-stroke-width': 1,
-                'circle-opacity': 0.8
+              'circle-radius': [
+                'interpolate',
+                ['linear'],
+                ['get', 'intensity'],
+                1, 10, // Minimum intensity, minimum radius (adjusted)
+                10, 30 // Maximum intensity, maximum radius (adjusted)
+              ],
+              'circle-color': [
+                'interpolate',
+                ['linear'],
+                ['get', 'intensity'], // Get the intensity property from the feature
+                1, 'green',  // Minimum intensity, green color
+                5, 'yellow', // Medium intensity, yellow color
+                10, 'red'   // Maximum intensity, red color
+              ],
+              'circle-stroke-color': 'white',
+              'circle-stroke-width': 1,
+              'circle-opacity': 0.8
             },
             layout: {
-                'visibility': 'none'
+              'visibility': 'none' // Initially hide the heatmap layer
             },
             filter: ['==', ['number', ['get', 'hour']], time] // Initial filter based on time
-        });
+          });
             // Add clickable points for each room -- will eventually be a part of the geoJSON
             selectedBuilding.geoJSON.features.forEach((feature, index) => {
                 if (feature.geometry.type === 'Polygon') {
