@@ -3,6 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import RoomModal from './RoomModal';
 import geoJSONCollection from '../assets/floorMap';
+import HoverRoomModal from './HoverRoomModal';
 
 const AMERICAN_CENTER = [-100, 40];
 const PADDING = 50;
@@ -15,6 +16,8 @@ function MapboxContainer({username}) {
     const [selectedRoom, setSelectedRoom] = useState(null);
     const [selectedBuilding, setSelectedBuilding] = useState(null);
     const [buildings, setBuildings] = useState([]);
+    const [selectedRoomHover, setSelectedRoomHover] = useState(null);
+
     //New debugging code
     const [debugInfo, setDebugInfo] = useState({
         startingZoom: null,
@@ -134,6 +137,28 @@ function MapboxContainer({username}) {
                         });
                     });
 
+                    // handle hover on each room
+                    // TODO
+                    el.addEventListener('mouseover', () => {
+                        const markerPosition = mapRef.current.project(center);
+                        setSelectedRoomHover({
+                            name: feature.properties.Name || `Room ${index + 1}`,
+                            hours: feature.properties.Hours || 'Not specified',
+                            lastEntry: feature.properties.LastEntry || 'No recent entries',
+                            lockBattery: feature.properties.LockBattery || 'Unknown',
+                            x: markerPosition.x,
+                            y: markerPosition.y
+                        });
+                    });
+        
+                    // handle mouse leave to remove hover
+                    el.addEventListener('mouseleave', () => {
+                        setTimeout(() => {
+                            setSelectedRoomHover(null);
+                        }, 200); 
+                    });
+
+
                     new mapboxgl.Marker(el)
                         .setLngLat(center)
                         .addTo(mapRef.current);
@@ -215,6 +240,14 @@ function MapboxContainer({username}) {
                         onClose={() => setSelectedRoom(null)}
                     />
                 )}
+                {selectedRoomHover && (
+                <HoverRoomModal room={selectedRoomHover} style={{
+                    position: 'absolute',
+                    left: `${selectedRoomHover.x}px`,
+                    top: `${selectedRoomHover.y}px`,
+                    transform: 'translate(-50%, -100%)', // Adjust to position above the marker like a chat bubble
+                }} />
+            )}
                 <div className="debug-overlay" style={{
                     position: 'absolute',
                     top: '10px',
