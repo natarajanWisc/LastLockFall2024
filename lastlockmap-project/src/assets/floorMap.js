@@ -9,7 +9,7 @@ const geoJSONCollection = {
             "properties": {
                 "Name": "Truck Bay",
                 "Rentable": true,
-                "Rented": false,
+                "Rented": true,
             },
             "geometry": {
                 "type": "Polygon",
@@ -66,7 +66,10 @@ const geoJSONCollection = {
         {
             "type": "Feature",
             "properties": {
-                "Name": "Service and Storage"
+                "Name": "Service and Storage",
+                "Rentable": true,
+                "Rented": false,
+                "Apporval_Needed": false
             },
             "geometry": {
                 "type": "Polygon",
@@ -107,7 +110,10 @@ const geoJSONCollection = {
         {
             "type": "Feature",
             "properties": {
-                "Name": "Building Services Office"
+                "Name": "Building Services Office",
+                "Rentable": true,
+                "Rented": false,
+                "Approval_Needed": true
             },
             "geometry": {
                 "type": "Polygon",
@@ -156,7 +162,9 @@ const geoJSONCollection = {
         {
             "type": "Feature",
             "properties": {
-                "Name": "Bowling"
+                "Name": "Bowling",
+                "Rentable": true,
+                "Rented": false,
             },
             "geometry": {
                 "type": "Polygon",

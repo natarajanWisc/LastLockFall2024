@@ -119,8 +119,29 @@ function MapboxContainer({username}) {
                     // Create a div element for the box with room name
                     const el = document.createElement('div');
                     el.className = 'room-box';
-                    el.style.backgroundColor = '#007bff';
-                    el.style.color = '#ffffff';
+                    //edit color for buttons on renting conditions
+                    if(feature.properties.Rentable){
+                        if(feature.properties.Rented){
+                            //red
+                            el.style.backgroundColor = '#ff0000';
+                            el.style.color = '#ffffff';
+                        }else if(feature.properties.Approval_Needed){
+                            //yellow
+                            el.style.backgroundColor = '#FFD966';
+                            el.style.color = '#000000';
+                        }else{
+                            //green
+                            el.style.backgroundColor = '#28a745';
+                            el.style.color = '#ffffff';
+                        }
+                        
+                    }else{
+                        //blue
+                        el.style.backgroundColor = '#007bff';
+                        el.style.color = '#ffffff';
+                    }
+                    
+
                     el.style.padding = '5px 10px';
                     el.style.borderRadius = '8px'; // Rounded corners
                     el.style.cursor = 'pointer';
