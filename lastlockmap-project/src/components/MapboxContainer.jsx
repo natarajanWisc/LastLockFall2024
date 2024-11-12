@@ -113,6 +113,7 @@ function MapboxContainer({username}) {
                     <RoomModal
                         room={selectedRoom}
                         onClose={() => setSelectedRoom(null)}
+                        originCoords={selectedRoom.clickCoords}
                     />
                 )}
                 <div className="debug-overlay" style={{

@@ -92,12 +92,17 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
                 cursor: pointer;
             `;
 
-            el.addEventListener('click', () => {
+            el.addEventListener('click', (event) => {
+                const rect = event.target.getBoundingClientRect();
                 setSelectedRoom({
                     name: feature.properties.Name || `Room ${index + 1}`,
                     hours: feature.properties.Hours || 'Not specified',
                     lastEntry: feature.properties.LastEntry || 'No recent entries',
-                    lockBattery: feature.properties.LockBattery || 'Unknown'
+                    lockBattery: feature.properties.LockBattery || 'Unknown',
+                    clickCoords: {
+                        x: rect.x,
+                        y: rect.y
+                    }
                 });
             });
 
