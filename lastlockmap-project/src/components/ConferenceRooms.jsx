@@ -183,7 +183,6 @@ function ConferenceRooms({username}) {
                     new mapboxgl.Marker(el)
                         .setLngLat(center)
                         .addTo(mapRef.current);
-                //if room is rentable (i.e conference room), we will eventually change color of room. For now, I will just do the dot
                 }
             });
 

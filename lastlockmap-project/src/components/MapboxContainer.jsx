@@ -108,23 +108,27 @@ function MapboxContainer({username}) {
                 }
             });
 
-            // Add clickable points for each room -- will eventually be a part of the geoJSON
+            //Add clickable name for each room
             selectedBuilding.geoJSON.features.forEach((feature, index) => {
                 if (feature.geometry.type === 'Polygon') {
                     const coordinates = feature.geometry.coordinates[0];
                     const center = coordinates.reduce((acc, coord) => {
                         return [acc[0] + coord[0], acc[1] + coord[1]];
                     }, [0, 0]).map(sum => sum / coordinates.length);
-
-                    const el = document.createElement('div'); // creating the dots for each room
-                    el.className = 'room-marker';
+            
+                    // Create a div element for the box with room name
+                    const el = document.createElement('div');
+                    el.className = 'room-box';
                     el.style.backgroundColor = '#007bff';
-                    el.style.width = '12px';
-                    el.style.height = '12px';
-                    el.style.borderRadius = '50%';
+                    el.style.color = '#ffffff';
+                    el.style.padding = '5px 10px';
+                    el.style.borderRadius = '8px'; // Rounded corners
                     el.style.cursor = 'pointer';
-
-                    // handles click on each room
+                    el.style.textAlign = 'center';
+                    el.style.fontSize = '12px';
+                    el.textContent = feature.properties.Name || `Room ${index + 1}`;
+            
+                    // Add click handler to display room details
                     el.addEventListener('click', () => {
                         setSelectedRoom({
                             name: feature.properties.Name || `Room ${index + 1}`,
@@ -133,12 +137,47 @@ function MapboxContainer({username}) {
                             lockBattery: feature.properties.LockBattery || 'Unknown'
                         });
                     });
-
+            
                     new mapboxgl.Marker(el)
                         .setLngLat(center)
                         .addTo(mapRef.current);
                 }
             });
+            
+
+            // Add clickable points for each room -- will eventually be a part of the geoJSON
+            // selectedBuilding.geoJSON.features.forEach((feature, index) => {
+            //     if (feature.geometry.type === 'Polygon') {
+            //         const coordinates = feature.geometry.coordinates[0];
+            //         const center = coordinates.reduce((acc, coord) => {
+            //             return [acc[0] + coord[0], acc[1] + coord[1]];
+            //         }, [0, 0]).map(sum => sum / coordinates.length);
+
+
+
+            //         const el = document.createElement('div'); // creating the dots for each room
+            //         el.className = 'room-marker';
+            //         el.style.backgroundColor = '#007bff';
+            //         el.style.width = '12px';
+            //         el.style.height = '12px';
+            //         el.style.borderRadius = '50%';
+            //         el.style.cursor = 'pointer';
+
+            //         // handles click on each room
+            //         el.addEventListener('click', () => {
+            //             setSelectedRoom({
+            //                 name: feature.properties.Name || `Room ${index + 1}`,
+            //                 hours: feature.properties.Hours || 'Not specified',
+            //                 lastEntry: feature.properties.LastEntry || 'No recent entries',
+            //                 lockBattery: feature.properties.LockBattery || 'Unknown'
+            //             });
+            //         });
+
+            //         new mapboxgl.Marker(el)
+            //             .setLngLat(center)
+            //             .addTo(mapRef.current);
+            //     }
+            // });
 
             // Set max bounds with padding
             // const maxBounds = bounds.toArray();
