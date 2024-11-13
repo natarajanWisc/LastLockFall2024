@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
-import locksGeoJSON from '../../../assets/locks';
+import locksGeoJSON from '../../assets/locks';
 
 const PADDING = 50;
 const ANIM_DUR = 3000;

@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import RoomModal from './RoomModal';
-import MapInitialization from './modalMenus/helpers/MapInitialization';
+import MapInitialization from './helpers/MapInitialization';
 import geoJSONCollection from '../assets/floorMap';
 import locksGeoJSON from '../assets/locks';
 
