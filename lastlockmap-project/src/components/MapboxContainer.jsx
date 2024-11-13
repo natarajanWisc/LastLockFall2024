@@ -13,7 +13,6 @@ function MapboxContainer({username}) {
     const mapRef = useRef();
     const mapContainerRef = useRef();
     const [selectedRoom, setSelectedRoom] = useState(null);
-    const [hoveredRoom, setHoveredRoom] = useState(null); // New state for hovered room
     const [selectedBuilding, setSelectedBuilding] = useState(null);
     const [buildings, setBuildings] = useState([]);
     //New debugging code
