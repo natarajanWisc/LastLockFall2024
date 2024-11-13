@@ -3,8 +3,9 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { roomLog, batteryPercentage } from '../assets/sampleRoomData';
 import NotiMenu from './modalMenus/NotiMenu';
 import TimePickerMenu from './modalMenus/TimePickerMenu';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const RoomModal = ({ room, onClose }) => {
+const RoomModal = ({ room, onClose, originCoords }) => {
     const [isLogOpen, setIsLogOpen] = useState(false);
     const [roomHours, setRoomHours] = useState(null)
     const [alertStatus, setAlertStatus] = useState("off")
@@ -15,43 +16,44 @@ const RoomModal = ({ room, onClose }) => {
     const [closingTime, setClosingTime] = useState(null);
     const [timePickerStep, setTimePickerStep] = useState(1);
     const [isSavingTime, setIsSavingTime] = useState(false);
+    // Get viewport dimensions for animation
+    // const [viewport, setViewport] = useState({
+    //     width: window.innerWidth,
+    //     height: window.innerHeight
+    // });
+
+    // useEffect(() => {
+    //     const handleResize = () => {
+    //         setViewport({
+    //             width: window.innerWidth,
+    //             height: window.innerHeight
+    //         });
+    //     };
+
+    //     window.addEventListener('resize', handleResize);
+    //     return () => window.removeEventListener('resize', handleResize);
+    // }, [room]);
 
     useEffect(() => {
         const savedHours = localStorage.getItem(getHoursStorageKey());
+        const savedAlertStatus = localStorage.getItem(getAlertStorageKey());
+        
         if (savedHours) {
             const [opening, closing] = savedHours.split(' - ');
             if (opening !== '??:??') setOpeningTime(opening);
             if (closing !== '??:??') setClosingTime(closing);
-        }
-    }, []);
-
-    useEffect(() => {
-        const savedHours = localStorage.getItem(getHoursStorageKey());
-        if (savedHours) {
             setRoomHours(savedHours);
         }
-        const savedAlertStatus = localStorage.getItem(getAlertStorageKey());
+
         if (savedAlertStatus) {
             setAlertStatus(savedAlertStatus);
         }
-
-        // Close notification menu when clicking outside
-        const handleClickOutside = (event) => {
-            if (!event.target.closest('.notification-menu') && 
-                !event.target.closest('.bell-icon')) {
-                setIsNotiMenuOpen(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-
-    }, [room.name, alertStatus]);
+    }, [room]);
 
     const modalStyle = {
         position: 'fixed',
-        top: '50%',
-        left: '50%',
+        top: "50%",
+        left: "50%",
         transform: 'translate(-50%, -50%)',
         backgroundColor: '#333333',
         border: '2px solid #4091F7',
@@ -183,10 +185,45 @@ const RoomModal = ({ room, onClose }) => {
     const handleNotiChange = (status) => {
         setAlertStatus(status);
         localStorage.setItem(getAlertStorageKey(), status);
-        console.log(getAlertStorageKey());
+        // console.log(getAlertStorageKey());
         setIsNotiMenuOpen(false);
     };
 
+    // Calculate the scale and position for the animation
+    // const initialScale = 0.01;
+    // const targetX = viewport.width / 2;
+    // const targetY = viewport.height / 2;
+
+    // const modalVariants = {
+    //     initial: {
+    //         scale: initialScale,
+    //         x: originCoords.x - targetX,
+    //         y: originCoords.y - targetY,
+    //         opacity: 0
+    //     },
+    //     animate: {
+    //         scale: 1,
+    //         x: 0,
+    //         y: 0,
+    //         opacity: 1,
+    //         transition: {
+    //             duration: 0.3,
+    //             ease: "easeOut"
+    //         }
+    //     },
+    //     exit: {
+    //         scale: initialScale,
+    //         x: originCoords.x - targetX,
+    //         y: originCoords.y - targetY,
+    //         opacity: 0,
+    //         transition: {
+    //             duration: 0.2,
+    //             ease: "easeIn"
+    //         }
+    //     }
+    // };
+
+    // style={modalStyle}
     return (
         <div style={modalStyle}>
             <h2 style={headerStyle}>
