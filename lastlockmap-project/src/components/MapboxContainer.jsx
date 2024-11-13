@@ -13,6 +13,7 @@ function MapboxContainer({username}) {
     const mapRef = useRef();
     const mapContainerRef = useRef();
     const [selectedRoom, setSelectedRoom] = useState(null);
+    const [hoveredRoom, setHoveredRoom] = useState(null); // New state for hovered room
     const [selectedBuilding, setSelectedBuilding] = useState(null);
     const [buildings, setBuildings] = useState([]);
     //New debugging code
@@ -108,48 +109,82 @@ function MapboxContainer({username}) {
                 }
             });
 
-            //Add clickable name for each room
+            // Initialize the highlight source with an empty feature collection
+            mapRef.current.addSource('highlighted-room', {
+                type: 'geojson',
+                data: {
+                    type: 'FeatureCollection',
+                    features: []
+                }
+            });
+
+            // Add a layer for the highlighted room
+            mapRef.current.addLayer({
+                id: 'highlight-layer',
+                type: 'fill',
+                source: 'highlighted-room',
+                paint: {
+                    'fill-color': '#4a4a4a', // Dark gray color for highlight
+                    'fill-opacity': 0.6
+                }
+            });
+
+            // Function to update highlight layer source
+            function updateHighlight(feature) {
+                mapRef.current.getSource('highlighted-room').setData({
+                    type: 'FeatureCollection',
+                    features: [feature]
+                });
+            }
+
+            // Reset highlight when no room is selected or hovered
+            function clearHighlight() {
+                mapRef.current.getSource('highlighted-room').setData({
+                    type: 'FeatureCollection',
+                    features: []
+                });
+            }
+
+            // Add clickable name for each room
             selectedBuilding.geoJSON.features.forEach((feature, index) => {
                 if (feature.geometry.type === 'Polygon') {
                     const coordinates = feature.geometry.coordinates[0];
                     const center = coordinates.reduce((acc, coord) => {
                         return [acc[0] + coord[0], acc[1] + coord[1]];
                     }, [0, 0]).map(sum => sum / coordinates.length);
-            
-                    // Create a div element for the box with room name
+
+                    // Create a div element for the room name box
                     const el = document.createElement('div');
                     el.className = 'room-box';
-                    //edit color for buttons on renting conditions
-                    if(feature.properties.Rentable){
-                        if(feature.properties.Rented){
-                            //red
+                    
+                    // Edit colors based on renting conditions
+                    if (feature.properties.Rentable) {
+                        if (feature.properties.Rented) {
                             el.style.backgroundColor = '#ff0000';
                             el.style.color = '#ffffff';
-                        }else if(feature.properties.Approval_Needed){
-                            //yellow
+                        } else if (feature.properties.Approval_Needed) {
                             el.style.backgroundColor = '#FFD966';
                             el.style.color = '#000000';
-                        }else{
-                            //green
+                        } else {
                             el.style.backgroundColor = '#28a745';
                             el.style.color = '#ffffff';
                         }
-                        
-                    }else{
-                        //blue
+                    } else {
                         el.style.backgroundColor = '#007bff';
                         el.style.color = '#ffffff';
                     }
-                    
 
                     el.style.padding = '5px 10px';
-                    el.style.borderRadius = '8px'; // Rounded corners
+                    el.style.borderRadius = '8px';
                     el.style.cursor = 'pointer';
                     el.style.textAlign = 'center';
                     el.style.fontSize = '12px';
                     el.textContent = feature.properties.Name || `Room ${index + 1}`;
-            
-                    // Add click handler to display room details
+
+                    // Add hover and click event listeners to the element
+                    el.addEventListener('mouseenter', () => updateHighlight(feature));
+                    el.addEventListener('mouseleave', clearHighlight);
+
                     el.addEventListener('click', () => {
                         setSelectedRoom({
                             name: feature.properties.Name || `Room ${index + 1}`,
@@ -157,13 +192,16 @@ function MapboxContainer({username}) {
                             lastEntry: feature.properties.LastEntry || 'No recent entries',
                             lockBattery: feature.properties.LockBattery || 'Unknown'
                         });
+                        updateHighlight(feature); // Keep the highlight on click
                     });
-            
+
                     new mapboxgl.Marker(el)
                         .setLngLat(center)
                         .addTo(mapRef.current);
                 }
             });
+
+
             
 
             // Add clickable points for each room -- will eventually be a part of the geoJSON
@@ -272,7 +310,9 @@ function MapboxContainer({username}) {
                 {selectedRoom && (
                     <RoomModal
                         room={selectedRoom}
-                        onClose={() => setSelectedRoom(null)}
+                        onClose={() => {
+                            setSelectedRoom(null);
+                        }}
                     />
                 )}
                 <div className="debug-overlay" style={{
