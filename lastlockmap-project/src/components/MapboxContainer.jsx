@@ -4,6 +4,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import RoomModal from './RoomModal';
 import MapInitialization from './modalMenus/helpers/MapInitialization';
 import geoJSONCollection from '../assets/floorMap';
+import locksGeoJSON from '../assets/locks';
 
 const AMERICAN_CENTER = [-100, 40];
 
@@ -13,11 +14,11 @@ function MapboxContainer({username}) {
     const mapContainerRef = useRef();
     const markersRef = useRef([]);
     const [selectedRoom, setSelectedRoom] = useState(null);
-    // selected floor plan
-    const [selectedBuilding, setSelectedBuilding] = useState(null);
-    // set of all floor plans
-    const [buildings, setBuildings] = useState([]);
+    const [selectedBuilding, setSelectedBuilding] = useState(null); // selected floor plan
+    const [buildings, setBuildings] = useState([]); // set of all floor plans
     const [mapInitialized, setMapInitialized] = useState(false);
+    const [showTimeSeries, setShowTimeSeries] = useState(false); // State for checkbox
+    const [time, setTime] = useState(12); // Initial time
     //New debugging code
     const [debugInfo, setDebugInfo] = useState({
         startingZoom: null,
@@ -76,12 +77,29 @@ function MapboxContainer({username}) {
         };
     }, []);
 
+
     // handles a floor plan being selected by the user
     function handleFloorSelection(event) {
         const buildingId = event.target.value;
         const selected = buildings.find(building => building.id === buildingId);
         setSelectedBuilding(selected);
     }
+    const handleTimeChange = (event) => {
+        const hour = parseInt(event.target.value);
+        setTime(hour);
+        // console.log('Updating filter for hour:', hour);
+        // Update the map filter
+        if (mapRef.current.getLayer('locks-heatmap')) {
+          mapRef.current.setFilter('locks-heatmap', ['==', ['number', ['get', 'hour']], hour]);
+        }
+    
+        // Convert 0-23 hour to AMPM format
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        const hour12 = hour % 12 ? hour % 12 : 12;
+    
+        // Update text in the UI
+        document.getElementById('active-hour').innerText = hour12 + ampm;
+      };
 
     return (
         <div className="outer-container">
@@ -108,6 +126,9 @@ function MapboxContainer({username}) {
                     markersRef={markersRef}
                     setSelectedRoom={setSelectedRoom}
                     setDebugInfo={setDebugInfo}
+                    showTimeSeries={showTimeSeries}
+                    time={time}
+                    setTime={setTime}
                 />
                 {selectedRoom && (
                     <RoomModal
@@ -128,7 +149,30 @@ function MapboxContainer({username}) {
                     maxWidth: '300px',
                     zIndex: 1000,
                 }}>
-                   
+                
+          <label>
+            <input
+              type="checkbox"
+              checked={showTimeSeries}
+              onChange={() => setShowTimeSeries(!showTimeSeries)}
+            />
+            Show Time Series
+          </label>
+          {showTimeSeries && (
+            <div className="session" id="sliderbar">
+              <h2>Hour: <label id="active-hour">12PM</label></h2>
+              <input
+                id="slider"
+                className="row"
+                type="range"
+                min="0"
+                max="23"
+                step="1"
+                value={time}
+                onChange={handleTimeChange}
+              />
+            </div>
+          )}
                 </div>
             </div>
         </div>

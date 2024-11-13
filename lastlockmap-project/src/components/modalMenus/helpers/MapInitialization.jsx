@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
+import locksGeoJSON from '../../../assets/locks';
 
 const PADDING = 50;
 const ANIM_DUR = 3000;
 
-const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRef, setSelectedRoom, setDebugInfo }) => {
+const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRef, setSelectedRoom, setDebugInfo, showTimeSeries, time, setTime }) => {
   
     // clears markers when new floor plan is selected  
     const clearMarkers = () => {
@@ -16,18 +17,24 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
 
     // resets to initial world view when no floor plan is selected
     const resetToInitialView = () => {
+        if (!mapRef.current) return;
+
         clearMarkers();
 
         // Remove existing layers and sources
-        ['floor-layer', 'floor-outline'].forEach(layer => {
-            if (mapRef.current.getLayer(layer)) {
+        const layersToRemove = ['floor-layer', 'floor-outline', 'locks-circles'];
+        layersToRemove.forEach(layer => {
+            if (mapRef.current.getStyle() && mapRef.current.getLayer(layer)) {
                 mapRef.current.removeLayer(layer);
             }
         });
 
-        if (mapRef.current.getSource('floor-data')) {
-            mapRef.current.removeSource('floor-data');
-        }
+        const sourcesToRemove = ['floor-data', 'locks'];
+        sourcesToRemove.forEach(source => {
+            if (mapRef.current.getStyle() && mapRef.current.getSource(source)) {
+                mapRef.current.removeSource(source);
+            }
+        });
 
         // Reset bounds and zoom
         mapRef.current.setMaxBounds(null);
@@ -43,37 +50,94 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
 
     // adds layers to the map view to create floor plans and features
     const addMapLayers = () => {
-        // adds basic geoJSON structure
-        mapRef.current.addSource('floor-data', {
-            type: 'geojson',
-            data: selectedBuilding.geoJSON
-        });
+        if (!mapRef.current || !mapRef.current.getStyle()) return;
 
-        // adds a layer for the specific floor
-        mapRef.current.addLayer({
-            id: 'floor-layer',
-            type: 'fill',
-            source: 'floor-data',
-            paint: {
-              'fill-color': '#252525',
-              'fill-opacity': 1
-            }
-        });
+        // Add floor data source if it doesn't exist
+        if (!mapRef.current.getSource('floor-data')) {
+            mapRef.current.addSource('floor-data', {
+                type: 'geojson',
+                data: selectedBuilding.geoJSON
+            });
+        }
 
-        // adds a layer of lines representing the walls of the floor
-        mapRef.current.addLayer({
-            id: 'floor-outline',
-            type: 'line',
-            source: 'floor-data',
-            paint: {
-              'line-color': '#f8f8f8',
-              'line-width': 1
-            }
-        });
+        // Add floor layers if they don't exist
+        if (!mapRef.current.getLayer('floor-layer')) {
+            mapRef.current.addLayer({
+                id: 'floor-layer',
+                type: 'fill',
+                source: 'floor-data',
+                paint: {
+                    'fill-color': '#252525',
+                    'fill-opacity': 1
+                }
+            });
+        }
+
+        if (!mapRef.current.getLayer('floor-outline')) {
+            mapRef.current.addLayer({
+                id: 'floor-outline',
+                type: 'line',
+                source: 'floor-data',
+                paint: {
+                    'line-color': '#f8f8f8',
+                    'line-width': 1
+                }
+            });
+        }
+
+        // Add locks data if it doesn't exist
+        if (!mapRef.current.getSource('locks')) {
+            mapRef.current.addSource('locks', {
+                type: 'geojson',
+                data: locksGeoJSON
+            });
+        }
+
+        // // Verify the presence of the 'hour' property in the GeoJSON data
+        // locksGeoJSON.features.forEach(feature => {
+        //     if (typeof feature.properties.hour !== 'number') {
+        //     console.error('Invalid or missing "hour" property in feature:', feature);
+        //     }
+        // });
+        
+        // Add locks visualization if it doesn't exist
+        if (!mapRef.current.getLayer('locks-circles')) {
+            mapRef.current.addLayer({
+                id: 'locks-circles',
+                type: 'circle',
+                source: 'locks',
+                paint: {
+                    'circle-radius': [
+                        'interpolate',
+                        ['linear'],
+                        ['get', 'intensity'],
+                        1, 10,
+                        10, 30
+                    ],
+                    'circle-color': [
+                        'interpolate',
+                        ['linear'],
+                        ['get', 'intensity'],
+                        1, 'green',
+                        5, 'yellow',
+                        10, 'red'
+                    ],
+                    'circle-stroke-color': 'white',
+                    'circle-stroke-width': 1,
+                    'circle-opacity': 0.8
+                },
+                layout: {
+                    'visibility': showTimeSeries ? 'visible' : 'none'
+                },
+                filter: ['==', ['number', ['get', 'hour']], time]
+            });
+        }
     };
 
     // adds a clickable marker for each room
     const addRoomMarkers = () => {
+        if (!mapRef.current || !selectedBuilding) return;
+
         selectedBuilding.geoJSON.features.forEach((feature, index) => {
             if (feature.geometry.type === 'Polygon') {
                 const coordinates = feature.geometry.coordinates[0];
@@ -115,8 +179,9 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
         });
     };
 
+    // Effect for handling building selection changes
     useEffect(() => {
-        if (!mapInitialized) return;
+        if (!mapInitialized || !mapRef.current) return;
 
         if (!selectedBuilding) {
             resetToInitialView();
@@ -136,7 +201,8 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
         clearMarkers();
 
         // Remove existing layers and sources
-        ['floor-layer', 'floor-outline'].forEach(layer => {
+        const layersToRemove = ['floor-layer', 'floor-outline', 'locks-circles'];
+        layersToRemove.forEach(layer => {
             if (mapRef.current.getLayer(layer)) {
                 mapRef.current.removeLayer(layer);
             }
@@ -155,6 +221,8 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
 
         // Add layers and markers after animation
         setTimeout(() => {
+            if (!mapRef.current) return;
+
             addMapLayers();
             addRoomMarkers();
 
@@ -165,18 +233,57 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
             const initialZoom = mapRef.current.getZoom();
             mapRef.current.setMinZoom(initialZoom - 0.5);
 
-            // Update debug info
-            setDebugInfo({
-                startingZoom: mapRef.current.getZoom(),
-                startingFitBounds: initialBounds.toString(),
-                startingMinZoom: mapRef.current.getMinZoom(),
-                currentMaxBounds: mapRef.current.getMaxBounds().toString(),
-                currentMinZoom: mapRef.current.getMinZoom(),
-                currentZoom: mapRef.current.getZoom(),
-            });
+            // // Update debug info
+            // setDebugInfo({
+            //     startingZoom: mapRef.current.getZoom(),
+            //     startingFitBounds: initialBounds.toString(),
+            //     startingMinZoom: mapRef.current.getMinZoom(),
+            //     currentMaxBounds: mapRef.current.getMaxBounds().toString(),
+            //     currentMinZoom: mapRef.current.getMinZoom(),
+            //     currentZoom: mapRef.current.getZoom(),
+            // });
+
+            //  // Add move event listener to update current zoom
+            //  mapRef.current.on('move', () => {
+            //     setDebugInfo(prevInfo => ({
+            //         ...prevInfo,
+            //         currentZoom: mapRef.current.getZoom(),
+            //         currentMaxBounds: mapRef.current.getMaxBounds().toString(),
+            //         currentMinZoom: mapRef.current.getMinZoom(),
+            //     }));
+            // });
+
         }, ANIM_DUR / 2);
 
     }, [selectedBuilding, mapInitialized]);
+
+    // Effect for handling time changes
+    useEffect(() => {
+        if (mapRef.current && mapRef.current.getStyle() && mapRef.current.getLayer('locks-circles')) {
+            mapRef.current.setFilter('locks-circles', ['==', ['number', ['get', 'hour']], time]);
+            // console.log('Updated filter for hour:', time);
+        }
+    }, [time]);
+    
+    // Effect for handling time series visibility
+    useEffect(() => {
+        if (!mapRef.current || !mapRef.current.getStyle()) return;
+
+        if (showTimeSeries) {
+            setTime(12); // Set default hour to 12
+            // console.log('Time series visualization enabled, setting default hour to 12');
+            // // Update the map filter
+            // if (mapRef.current && mapRef.current.getLayer('locks-heatmap')) {
+            //     mapRef.current.setFilter('locks-heatmap', ['==', ['number', ['get', 'hour']], 12]);
+            // }
+        }
+
+        if (mapRef.current.getLayer('locks-circles')) {
+            const visibility = showTimeSeries ? 'visible' : 'none';
+            mapRef.current.setLayoutProperty('locks-circles', 'visibility', visibility);
+            console.log(`Heatmap visibility set to: ${visibility}`);
+        }
+    }, [showTimeSeries]);
 
     return null;
 };
