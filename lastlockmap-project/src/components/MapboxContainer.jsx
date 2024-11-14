@@ -61,125 +61,135 @@ function MapboxContainer({username}) {
         });
 
         mapRef.current.on('load', () => {
+            setMapInitialized(true);
             // Add the GeoJSON source
-            mapRef.current.addSource('floor-data', {
-                type: 'geojson',
-                data: selectedBuilding.geoJSON
-            });
-    
-            // Add a layer to render the GeoJSON data
-            mapRef.current.addLayer({
-                id: 'floor-layer',
-                type: 'fill',
-                source: 'floor-data',
-                paint: {
-                    'fill-color': '#252525', // Light gray
-                    'fill-opacity': 1
-                }
-            });
-    
-            // Add an outline layer
-            mapRef.current.addLayer({
-                id: 'floor-outline',
-                type: 'line',
-                source: 'floor-data',
-                paint: {
-                    'line-color': '#f8f8f8',
-                    'line-width': 1
-                }
-            });
-
-            // Initialize the highlight source with an empty feature collection
-            mapRef.current.addSource('highlighted-room', {
-                type: 'geojson',
-                data: {
-                    type: 'FeatureCollection',
-                    features: []
-                }
-            });
-
-            // Add a layer for the highlighted room
-            mapRef.current.addLayer({
-                id: 'highlight-layer',
-                type: 'fill',
-                source: 'highlighted-room',
-                paint: {
-                    'fill-color': '#4a4a4a', // Dark gray color for highlight
-                    'fill-opacity': 0.6
-                }
-            });
-
-            // Function to update highlight layer source
-            function updateHighlight(feature) {
-                mapRef.current.getSource('highlighted-room').setData({
-                    type: 'FeatureCollection',
-                    features: [feature]
-                });
+            
+            if (selectedBuilding){
+                
             }
-
-            // Reset highlight when no room is selected or hovered
-            function clearHighlight() {
-                mapRef.current.getSource('highlighted-room').setData({
-                    type: 'FeatureCollection',
-                    features: []
+                mapRef.current.addSource('floor-data', {
+                    type: 'geojson',
+                    data: selectedBuilding.geoJSON
                 });
-            }
 
-            // Add clickable name for each room
-            selectedBuilding.geoJSON.features.forEach((feature, index) => {
-                if (feature.geometry.type === 'Polygon') {
-                    const coordinates = feature.geometry.coordinates[0];
-                    const center = coordinates.reduce((acc, coord) => {
-                        return [acc[0] + coord[0], acc[1] + coord[1]];
-                    }, [0, 0]).map(sum => sum / coordinates.length);
+                // Add a layer to render the GeoJSON data
+                mapRef.current.addLayer({
+                    id: 'floor-layer',
+                    type: 'fill',
+                    source: 'floor-data',
+                    paint: {
+                        'fill-color': '#252525', // Light gray
+                        'fill-opacity': 1
+                    }
+                });
+        
+                // Add an outline layer
+                mapRef.current.addLayer({
+                    id: 'floor-outline',
+                    type: 'line',
+                    source: 'floor-data',
+                    paint: {
+                        'line-color': '#f8f8f8',
+                        'line-width': 1
+                    }
+                });
 
-                    // Create a div element for the room name box
-                    const el = document.createElement('div');
-                    el.className = 'room-box';
-                    
-                    // Edit colors based on renting conditions
-                    if (feature.properties.Rentable) {
-                        if (feature.properties.Rented) {
-                            el.style.backgroundColor = '#ff0000';
-                            el.style.color = '#ffffff';
-                        } else if (feature.properties.Approval_Needed) {
-                            el.style.backgroundColor = '#FFD966';
-                            el.style.color = '#000000';
+                // Initialize the highlight source with an empty feature collection
+                mapRef.current.addSource('highlighted-room', {
+                    type: 'geojson',
+                    data: {
+                        type: 'FeatureCollection',
+                        features: []
+                    }
+                });
+    
+                // Add a layer for the highlighted room
+                mapRef.current.addLayer({
+                    id: 'highlight-layer',
+                    type: 'fill',
+                    source: 'highlighted-room',
+                    paint: {
+                        'fill-color': '#4a4a4a', // Dark gray color for highlight
+                        'fill-opacity': 0.6
+                    }
+                });
+    
+                // Function to update highlight layer source
+                function updateHighlight(feature) {
+                    mapRef.current.getSource('highlighted-room').setData({
+                        type: 'FeatureCollection',
+                        features: [feature]
+                    });
+                }
+    
+                // Reset highlight when no room is selected or hovered
+                function clearHighlight() {
+                    mapRef.current.getSource('highlighted-room').setData({
+                        type: 'FeatureCollection',
+                        features: []
+                    });
+                }
+    
+                // Add clickable name for each room
+                selectedBuilding.geoJSON.features.forEach((feature, index) => {
+                    if (feature.geometry.type === 'Polygon') {
+                        const coordinates = feature.geometry.coordinates[0];
+                        const center = coordinates.reduce((acc, coord) => {
+                            return [acc[0] + coord[0], acc[1] + coord[1]];
+                        }, [0, 0]).map(sum => sum / coordinates.length);
+    
+                        // Create a div element for the room name box
+                        const el = document.createElement('div');
+                        el.className = 'room-box';
+                        
+                        // Edit colors based on renting conditions
+                        if (feature.properties.Rentable) {
+                            if (feature.properties.Rented) {
+                                el.style.backgroundColor = '#ff0000';
+                                el.style.color = '#ffffff';
+                            } else if (feature.properties.Approval_Needed) {
+                                el.style.backgroundColor = '#FFD966';
+                                el.style.color = '#000000';
+                            } else {
+                                el.style.backgroundColor = '#28a745';
+                                el.style.color = '#ffffff';
+                            }
                         } else {
-                            el.style.backgroundColor = '#28a745';
+                            el.style.backgroundColor = '#007bff';
                             el.style.color = '#ffffff';
                         }
-                    } else {
-                        el.style.backgroundColor = '#007bff';
-                        el.style.color = '#ffffff';
-                    }
-
-                    el.style.padding = '5px 10px';
-                    el.style.borderRadius = '8px';
-                    el.style.cursor = 'pointer';
-                    el.style.textAlign = 'center';
-                    el.style.fontSize = '12px';
-                    el.textContent = feature.properties.Name || `Room ${index + 1}`;
-
-                    // Add hover and click event listeners to the element
-                    el.addEventListener('mouseenter', () => updateHighlight(feature));
-                    el.addEventListener('mouseleave', clearHighlight);
-
-                    el.addEventListener('click', () => {
-                        setSelectedRoom({
-                            name: feature.properties.Name || `Room ${index + 1}`,
-                            hours: feature.properties.Hours || 'Not specified',
-                            lastEntry: feature.properties.LastEntry || 'No recent entries',
-                            lockBattery: feature.properties.LockBattery || 'Unknown'
+    
+                        el.style.padding = '5px 10px';
+                        el.style.borderRadius = '8px';
+                        el.style.cursor = 'pointer';
+                        el.style.textAlign = 'center';
+                        el.style.fontSize = '12px';
+                        el.textContent = feature.properties.Name || `Room ${index + 1}`;
+    
+                        // Add hover and click event listeners to the element
+                        el.addEventListener('mouseenter', () => updateHighlight(feature));
+                        el.addEventListener('mouseleave', clearHighlight);
+    
+                        el.addEventListener('click', () => {
+                            setSelectedRoom({
+                                name: feature.properties.Name || `Room ${index + 1}`,
+                                hours: feature.properties.Hours || 'Not specified',
+                                lastEntry: feature.properties.LastEntry || 'No recent entries',
+                                lockBattery: feature.properties.LockBattery || 'Unknown'
+                            });
+                            updateHighlight(feature); // Keep the highlight on click
                         });
-                        updateHighlight(feature); // Keep the highlight on click
-                    });
+    
+                        new mapboxgl.Marker(el)
+                            .setLngLat(center)
+                            .addTo(mapRef.current);
+                    }
+                });
 
-                    new mapboxgl.Marker(el)
-                        .setLngLat(center)
-                        .addTo(mapRef.current);
-                }
-            });
+            
+            
+
+
 
 
             
