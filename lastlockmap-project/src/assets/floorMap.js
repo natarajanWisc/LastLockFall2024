@@ -7,7 +7,9 @@ const geoJSONCollection = {
         {
             "type": "Feature",
             "properties": {
-                "Name": "Truck Bay"
+                "Name": "Truck Bay",
+                "Rentable": true,
+                "Rented": true,
             },
             "geometry": {
                 "type": "Polygon",
@@ -64,7 +66,10 @@ const geoJSONCollection = {
         {
             "type": "Feature",
             "properties": {
-                "Name": "Service and Storage"
+                "Name": "Service and Storage",
+                "Rentable": true,
+                "Rented": false,
+                "Apporval_Needed": false
             },
             "geometry": {
                 "type": "Polygon",
@@ -105,7 +110,10 @@ const geoJSONCollection = {
         {
             "type": "Feature",
             "properties": {
-                "Name": "Building Services Office"
+                "Name": "Building Services Office",
+                "Rentable": true,
+                "Rented": false,
+                "Approval_Needed": true
             },
             "geometry": {
                 "type": "Polygon",
@@ -154,7 +162,9 @@ const geoJSONCollection = {
         {
             "type": "Feature",
             "properties": {
-                "Name": "Bowling"
+                "Name": "Bowling",
+                "Rentable": true,
+                "Rented": false,
             },
             "geometry": {
                 "type": "Polygon",
@@ -443,7 +453,10 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
-                    "Name": null,
+                    //edited name here to simulate a conferenece Room
+                    "Name": "Conference Room",
+                    "Rentable": true,
+                    "Rented": false,
                     "Label": null,
                     "SHAPE_Leng": 0.00473181661376,
                     "SHAPE_Area": 8.96614151744e-8

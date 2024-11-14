@@ -5,7 +5,7 @@ import locksGeoJSON from '../../assets/locks';
 const PADDING = 50;
 const ANIM_DUR = 3000;
 
-const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRef, setSelectedRoom, setDebugInfo, showTimeSeries, time, setTime }) => {
+const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRef, setSelectedRoom, setDebugInfo, showTimeSeries, showRoomNames, time, setTime }) => {
   
     // clears markers when new floor plan is selected  
     const clearMarkers = () => {
@@ -67,7 +67,7 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
                 type: 'fill',
                 source: 'floor-data',
                 paint: {
-                    'fill-color': '#252525',
+                    'fill-color': '#252525', //light gray
                     'fill-opacity': 1
                 }
             });
@@ -83,7 +83,39 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
                     'line-width': 1
                 }
             });
+
         }
+
+
+        // Remove the highlight layer before the source, if they exist
+        if (mapRef.current.getLayer('highlight-layer')) {
+            mapRef.current.removeLayer('highlight-layer');
+        }
+        if (mapRef.current.getSource('highlighted-room')) {
+            mapRef.current.removeSource('highlighted-room');
+        }
+
+        // Add the highlight source for room highlighting
+        mapRef.current.addSource('highlighted-room', {
+            type: 'geojson',
+            data: {
+                type: 'FeatureCollection',
+                features: []
+            }
+        });
+
+        // Add the highlight layer for room highlighting
+        mapRef.current.addLayer({
+            id: 'highlight-layer',
+            type: 'fill',
+            source: 'highlighted-room',
+            paint: {
+                'fill-color': '#4a4a4a', // Dark gray color for highlight
+                'fill-opacity': 0.6
+            }
+        });
+
+        
 
         // Add locks data if it doesn't exist
         if (!mapRef.current.getSource('locks')) {
@@ -146,38 +178,130 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
                 [0, 0]
             ).map(sum => sum / coordinates.length);
 
-            const el = document.createElement('div');
-            el.className = 'room-marker';
-            el.style.cssText = `
-                background-color: #007bff;
-                width: 12px;
-                height: 12px;
-                border-radius: 50%;
-                cursor: pointer;
-            `;
 
-            el.addEventListener('click', (event) => {
-                const rect = event.target.getBoundingClientRect();
-                setSelectedRoom({
-                    name: feature.properties.Name || `Room ${index + 1}`,
-                    hours: feature.properties.Hours || 'Not specified',
-                    lastEntry: feature.properties.LastEntry || 'No recent entries',
-                    lockBattery: feature.properties.LockBattery || 'Unknown',
-                    clickCoords: {
-                        x: rect.x,
-                        y: rect.y
+            if (showRoomNames){
+                const el = document.createElement('div');
+                el.className = 'room-box';
+                
+                // Edit colors based on renting conditions: JUST BTW: These conditional IFS should be changed after Justin's work with renting room is done
+                if (feature.properties.Rentable) {
+                    if (feature.properties.Rented) {
+                        el.style.backgroundColor = '#ff0000';
+                        el.style.color = '#ffffff';
+                    } else if (feature.properties.Approval_Needed) {
+                        el.style.backgroundColor = '#FFD966';
+                        el.style.color = '#000000';
+                    } else {
+                        el.style.backgroundColor = '#28a745';
+                        el.style.color = '#ffffff';
                     }
-                });
-            });
+                } else {
+                    el.style.backgroundColor = '#007bff';
+                    el.style.color = '#ffffff';
+                }
 
-            const marker = new mapboxgl.Marker(el)
+                el.style.padding = '5px 10px';
+                el.style.borderRadius = '8px';
+                el.style.cursor = 'pointer';
+                el.style.textAlign = 'center';
+                el.style.fontSize = '12px';
+                el.textContent = feature.properties.Name || `Room ${index + 1}`;
+
+                el.addEventListener('click', (event) => {
+                    const rect = event.target.getBoundingClientRect();
+                    setSelectedRoom({
+                        name: feature.properties.Name || `Room ${index + 1}`,
+                        hours: feature.properties.Hours || 'Not specified',
+                        lastEntry: feature.properties.LastEntry || 'No recent entries',
+                        lockBattery: feature.properties.LockBattery || 'Unknown',
+                        clickCoords: {
+                            x: rect.x,
+                            y: rect.y
+                        }
+                    });
+                });
+    
+                // Add hover and click event listeners to the element
+                el.addEventListener('mouseenter', () => updateHighlight(feature));
+                el.addEventListener('mouseleave', clearHighlight);
+
+                const marker = new mapboxgl.Marker(el)
                 .setLngLat(center)
                 .addTo(mapRef.current);
 
-            markersRef.current.push(marker);
+                markersRef.current.push(marker);
+            }else{
+                const el = document.createElement('div');
+                el.className = 'room-marker';
+                el.style.cssText = `
+                    background-color: #007bff;
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+                    cursor: pointer;
+                `;
+                // Edit colors based on renting conditions: JUST BTW: These conditional IFS should be changed after Justin's work with renting room is done
+                if (feature.properties.Rentable) {
+                    if (feature.properties.Rented) {
+                        el.style.backgroundColor = '#ff0000';
+                        el.style.color = '#ffffff';
+                    } else if (feature.properties.Approval_Needed) {
+                        el.style.backgroundColor = '#FFD966';
+                        el.style.color = '#000000';
+                    } else {
+                        el.style.backgroundColor = '#28a745';
+                        el.style.color = '#ffffff';
+                    }
+                } else {
+                    el.style.backgroundColor = '#007bff';
+                    el.style.color = '#ffffff';
+                }
+                el.addEventListener('click', (event) => {
+                    const rect = event.target.getBoundingClientRect();
+                    setSelectedRoom({
+                        name: feature.properties.Name || `Room ${index + 1}`,
+                        hours: feature.properties.Hours || 'Not specified',
+                        lastEntry: feature.properties.LastEntry || 'No recent entries',
+                        lockBattery: feature.properties.LockBattery || 'Unknown',
+                        clickCoords: {
+                            x: rect.x,
+                            y: rect.y
+                        }
+                    });
+                });
+    
+                // Add hover and click event listeners to the element
+                el.addEventListener('mouseenter', () => updateHighlight(feature));
+                el.addEventListener('mouseleave', clearHighlight);
+
+                const marker = new mapboxgl.Marker(el)
+                .setLngLat(center)
+                .addTo(mapRef.current);
+
+                markersRef.current.push(marker);
+            }
+        
+
+            
           }
         });
     };
+
+    // Functions for updating and clearing highlight
+    const updateHighlight = (feature) => {
+        mapRef.current.getSource('highlighted-room').setData({
+            type: 'FeatureCollection',
+            features: [feature]
+        });
+    };
+
+    const clearHighlight = () => {
+        mapRef.current.getSource('highlighted-room').setData({
+            type: 'FeatureCollection',
+            features: []
+        });
+    };
+    
 
     // Effect for handling building selection changes
     useEffect(() => {
@@ -201,7 +325,7 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
         clearMarkers();
 
         // Remove existing layers and sources
-        const layersToRemove = ['floor-layer', 'floor-outline', 'locks-circles'];
+        const layersToRemove = ['floor-layer', 'floor-outline', 'locks-circles']; //might need to chnage
         layersToRemove.forEach(layer => {
             if (mapRef.current.getLayer(layer)) {
                 mapRef.current.removeLayer(layer);
@@ -284,6 +408,13 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
             console.log(`Heatmap visibility set to: ${visibility}`);
         }
     }, [showTimeSeries]);
+
+    useEffect(() => {
+        if (!mapRef.current || !mapRef.current.getStyle()) return;
+        clearMarkers();
+        addRoomMarkers();
+
+    }, [showRoomNames]);
 
     return null;
 };
