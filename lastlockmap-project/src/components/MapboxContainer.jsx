@@ -17,7 +17,8 @@ function MapboxContainer({username}) {
     const [selectedBuilding, setSelectedBuilding] = useState(null); // selected floor plan
     const [buildings, setBuildings] = useState([]); // set of all floor plans
     const [mapInitialized, setMapInitialized] = useState(false);
-    const [showTimeSeries, setShowTimeSeries] = useState(false); // State for checkbox
+    const [showTimeSeries, setShowTimeSeries] = useState(false); // State for time series checkbox
+    const [showRoomNames, setShowRoomNames] = useState(false); // State for room names checkbox
     const [time, setTime] = useState(12); // Initial time
     //New debugging code
     const [debugInfo, setDebugInfo] = useState({
@@ -61,209 +62,6 @@ function MapboxContainer({username}) {
         });
 
         mapRef.current.on('load', () => {
-            setMapInitialized(true);
-            // Add the GeoJSON source
-            
-            if (selectedBuilding){
-                
-            }
-                mapRef.current.addSource('floor-data', {
-                    type: 'geojson',
-                    data: selectedBuilding.geoJSON
-                });
-
-                // Add a layer to render the GeoJSON data
-                mapRef.current.addLayer({
-                    id: 'floor-layer',
-                    type: 'fill',
-                    source: 'floor-data',
-                    paint: {
-                        'fill-color': '#252525', // Light gray
-                        'fill-opacity': 1
-                    }
-                });
-        
-                // Add an outline layer
-                mapRef.current.addLayer({
-                    id: 'floor-outline',
-                    type: 'line',
-                    source: 'floor-data',
-                    paint: {
-                        'line-color': '#f8f8f8',
-                        'line-width': 1
-                    }
-                });
-
-                // Initialize the highlight source with an empty feature collection
-                mapRef.current.addSource('highlighted-room', {
-                    type: 'geojson',
-                    data: {
-                        type: 'FeatureCollection',
-                        features: []
-                    }
-                });
-    
-                // Add a layer for the highlighted room
-                mapRef.current.addLayer({
-                    id: 'highlight-layer',
-                    type: 'fill',
-                    source: 'highlighted-room',
-                    paint: {
-                        'fill-color': '#4a4a4a', // Dark gray color for highlight
-                        'fill-opacity': 0.6
-                    }
-                });
-    
-                // Function to update highlight layer source
-                function updateHighlight(feature) {
-                    mapRef.current.getSource('highlighted-room').setData({
-                        type: 'FeatureCollection',
-                        features: [feature]
-                    });
-                }
-    
-                // Reset highlight when no room is selected or hovered
-                function clearHighlight() {
-                    mapRef.current.getSource('highlighted-room').setData({
-                        type: 'FeatureCollection',
-                        features: []
-                    });
-                }
-    
-                // Add clickable name for each room
-                selectedBuilding.geoJSON.features.forEach((feature, index) => {
-                    if (feature.geometry.type === 'Polygon') {
-                        const coordinates = feature.geometry.coordinates[0];
-                        const center = coordinates.reduce((acc, coord) => {
-                            return [acc[0] + coord[0], acc[1] + coord[1]];
-                        }, [0, 0]).map(sum => sum / coordinates.length);
-    
-                        // Create a div element for the room name box
-                        const el = document.createElement('div');
-                        el.className = 'room-box';
-                        
-                        // Edit colors based on renting conditions
-                        if (feature.properties.Rentable) {
-                            if (feature.properties.Rented) {
-                                el.style.backgroundColor = '#ff0000';
-                                el.style.color = '#ffffff';
-                            } else if (feature.properties.Approval_Needed) {
-                                el.style.backgroundColor = '#FFD966';
-                                el.style.color = '#000000';
-                            } else {
-                                el.style.backgroundColor = '#28a745';
-                                el.style.color = '#ffffff';
-                            }
-                        } else {
-                            el.style.backgroundColor = '#007bff';
-                            el.style.color = '#ffffff';
-                        }
-    
-                        el.style.padding = '5px 10px';
-                        el.style.borderRadius = '8px';
-                        el.style.cursor = 'pointer';
-                        el.style.textAlign = 'center';
-                        el.style.fontSize = '12px';
-                        el.textContent = feature.properties.Name || `Room ${index + 1}`;
-    
-                        // Add hover and click event listeners to the element
-                        el.addEventListener('mouseenter', () => updateHighlight(feature));
-                        el.addEventListener('mouseleave', clearHighlight);
-    
-                        el.addEventListener('click', () => {
-                            setSelectedRoom({
-                                name: feature.properties.Name || `Room ${index + 1}`,
-                                hours: feature.properties.Hours || 'Not specified',
-                                lastEntry: feature.properties.LastEntry || 'No recent entries',
-                                lockBattery: feature.properties.LockBattery || 'Unknown'
-                            });
-                            updateHighlight(feature); // Keep the highlight on click
-                        });
-    
-                        new mapboxgl.Marker(el)
-                            .setLngLat(center)
-                            .addTo(mapRef.current);
-                    }
-                });
-
-            
-            
-
-
-
-
-            
-
-            // Add clickable points for each room -- will eventually be a part of the geoJSON
-            // selectedBuilding.geoJSON.features.forEach((feature, index) => {
-            //     if (feature.geometry.type === 'Polygon') {
-            //         const coordinates = feature.geometry.coordinates[0];
-            //         const center = coordinates.reduce((acc, coord) => {
-            //             return [acc[0] + coord[0], acc[1] + coord[1]];
-            //         }, [0, 0]).map(sum => sum / coordinates.length);
-
-
-
-            //         const el = document.createElement('div'); // creating the dots for each room
-            //         el.className = 'room-marker';
-            //         el.style.backgroundColor = '#007bff';
-            //         el.style.width = '12px';
-            //         el.style.height = '12px';
-            //         el.style.borderRadius = '50%';
-            //         el.style.cursor = 'pointer';
-
-            //         // handles click on each room
-            //         el.addEventListener('click', () => {
-            //             setSelectedRoom({
-            //                 name: feature.properties.Name || `Room ${index + 1}`,
-            //                 hours: feature.properties.Hours || 'Not specified',
-            //                 lastEntry: feature.properties.LastEntry || 'No recent entries',
-            //                 lockBattery: feature.properties.LockBattery || 'Unknown'
-            //             });
-            //         });
-
-            //         new mapboxgl.Marker(el)
-            //             .setLngLat(center)
-            //             .addTo(mapRef.current);
-            //     }
-            // });
-
-            // Set max bounds with padding
-            // const maxBounds = bounds.toArray();
-            // const sw = mapRef.current.project(maxBounds[0]);
-            // const ne = mapRef.current.project(maxBounds[1]);
-            // const paddedSw = mapRef.current.unproject([sw.x - PADDING, sw.y + PADDING]);
-            // const paddedNe = mapRef.current.unproject([ne.x + PADDING, ne.y - PADDING]);
-            // mapRef.current.setMaxBounds(new mapboxgl.LngLatBounds(paddedSw, paddedNe));
-
-            // Set max bounds based on the initial viewport
-            const initialBounds = mapRef.current.getBounds();
-            mapRef.current.setMaxBounds(initialBounds);
-
-            // Set minimum zoom level
-            const initialZoom = mapRef.current.getZoom();
-            mapRef.current.setMinZoom(initialZoom - 0.5); // Allow slight zoom out
-
-            // Update debug info
-            setDebugInfo({
-                startingZoom: mapRef.current.getZoom(),
-                startingFitBounds: initialBounds.toString(),
-                startingMinZoom: mapRef.current.getMinZoom(),
-                currentMaxBounds: mapRef.current.getMaxBounds().toString(),
-                currentMinZoom: mapRef.current.getMinZoom(),
-                currentZoom: mapRef.current.getZoom(),
-            });
-
-            // Add move event listener to update current zoom
-            mapRef.current.on('move', () => {
-                setDebugInfo(prevInfo => ({
-                    ...prevInfo,
-                    currentZoom: mapRef.current.getZoom(),
-                    currentMaxBounds: mapRef.current.getMaxBounds().toString(),
-                    currentMinZoom: mapRef.current.getMinZoom(),
-                }));
-            });
-
             setMapInitialized(true);
         });
 
@@ -330,6 +128,7 @@ function MapboxContainer({username}) {
                     setSelectedRoom={setSelectedRoom}
                     setDebugInfo={setDebugInfo}
                     showTimeSeries={showTimeSeries}
+                    showRoomNames={showRoomNames}
                     time={time}
                     setTime={setTime}
                 />
@@ -353,14 +152,26 @@ function MapboxContainer({username}) {
                     zIndex: 1000,
                 }}>
                 
-          <label>
-            <input
-              type="checkbox"
-              checked={showTimeSeries}
-              onChange={() => setShowTimeSeries(!showTimeSeries)}
-            />
-            Show Time Series
-          </label>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <label>
+                        <input
+                            type="checkbox"
+                            checked={showTimeSeries}
+                            onChange={() => setShowTimeSeries(!showTimeSeries)}
+                        />
+                        Show Time Series
+                    </label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            checked={showRoomNames}
+                            onChange={() => setShowRoomNames(!showRoomNames)}
+                        />
+                        Show Room Names
+                    </label>
+                </div>
+
+
           {showTimeSeries && (
             <div className="session" id="sliderbar">
               <h2>Hour: <label id="active-hour">12PM</label></h2>
