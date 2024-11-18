@@ -133,6 +133,7 @@ function MapboxContainer({username}) {
                     showRoomNames={showRoomNames}
                     time={time}
                     setTime={setTime}
+                    setSelectedRoomHover={setSelectedRoomHover}
                 />
                 {selectedRoom && (
                     <RoomModal
@@ -140,6 +141,14 @@ function MapboxContainer({username}) {
                         onClose={() => setSelectedRoom(null)}
                         originCoords={selectedRoom.clickCoords}
                     />
+                )}
+                {selectedRoomHover && (
+                    <HoverRoomModal room={selectedRoomHover} style={{
+                        position: 'absolute',
+                        left: `${selectedRoomHover.x}px`,
+                        top: `${selectedRoomHover.y}px`,
+                        transform: 'translate(-50%, -100%)', // Adjust to position above the marker like a chat bubble
+                    }} />
                 )}
                 <div className="debug-overlay" style={{
                     position: 'absolute',

@@ -22,8 +22,6 @@ const HoverRoomModal = ({ room, style }) => {
     const hours =localStorage.getItem(getHoursStorageKey());
 
     const [opening, closing] = hours? hours.split(' - ') : [null, null];
-    console.log('hours')
-    console.log(hours? hours : null);
 
     const [isHovered, setIsHovered] = useState(false);
 
@@ -41,7 +39,7 @@ const HoverRoomModal = ({ room, style }) => {
     const hoverModalStyle = {
         transform: 'translate(-50%, -50%)',
         backgroundColor: '#333333',
-        border: '2px solid #4091F7',
+        border: `2px solid ${room.color || '#4091F7'}`,
         borderRadius: '8px',
         padding: '10px',
         zIndex: 1000,
@@ -67,7 +65,7 @@ const HoverRoomModal = ({ room, style }) => {
     };
 
     return (
-        <div
+        <div id = 'hover-modal'
             style={{ ...hoverModalStyle, ...style }}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
