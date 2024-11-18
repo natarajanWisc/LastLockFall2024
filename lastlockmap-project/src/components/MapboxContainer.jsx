@@ -17,7 +17,8 @@ function MapboxContainer({username}) {
     const [selectedBuilding, setSelectedBuilding] = useState(null); // selected floor plan
     const [buildings, setBuildings] = useState([]); // set of all floor plans
     const [mapInitialized, setMapInitialized] = useState(false);
-    const [showTimeSeries, setShowTimeSeries] = useState(false); // State for checkbox
+    const [showTimeSeries, setShowTimeSeries] = useState(false); // State for time series checkbox
+    const [showRoomNames, setShowRoomNames] = useState(false); // State for room names checkbox
     const [time, setTime] = useState(12); // Initial time
     //New debugging code
     const [debugInfo, setDebugInfo] = useState({
@@ -127,6 +128,7 @@ function MapboxContainer({username}) {
                     setSelectedRoom={setSelectedRoom}
                     setDebugInfo={setDebugInfo}
                     showTimeSeries={showTimeSeries}
+                    showRoomNames={showRoomNames}
                     time={time}
                     setTime={setTime}
                 />
@@ -150,14 +152,26 @@ function MapboxContainer({username}) {
                     zIndex: 1000,
                 }}>
                 
-          <label>
-            <input
-              type="checkbox"
-              checked={showTimeSeries}
-              onChange={() => setShowTimeSeries(!showTimeSeries)}
-            />
-            Show Time Series
-          </label>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <label>
+                        <input
+                            type="checkbox"
+                            checked={showTimeSeries}
+                            onChange={() => setShowTimeSeries(!showTimeSeries)}
+                        />
+                        Show Time Series
+                    </label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            checked={showRoomNames}
+                            onChange={() => setShowRoomNames(!showRoomNames)}
+                        />
+                        Show Room Names
+                    </label>
+                </div>
+
+
           {showTimeSeries && (
             <div className="session" id="sliderbar">
               <h2>Hour: <label id="active-hour">12PM</label></h2>
