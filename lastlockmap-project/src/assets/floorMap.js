@@ -7,6 +7,7 @@ const geoJSONCollection = {
         {
             "type": "Feature",
             "properties": {
+                "RoomID": "R101",
                 "Name": "Truck Bay"
             },
             "geometry": {
@@ -64,6 +65,7 @@ const geoJSONCollection = {
         {
             "type": "Feature",
             "properties": {
+                "RoomID": "R102",
                 "Name": "Service and Storage"
             },
             "geometry": {
@@ -105,6 +107,7 @@ const geoJSONCollection = {
         {
             "type": "Feature",
             "properties": {
+                "RoomID": "R103",
                 "Name": "Building Services Office"
             },
             "geometry": {
@@ -154,6 +157,7 @@ const geoJSONCollection = {
         {
             "type": "Feature",
             "properties": {
+                "RoomID": "R104",
                 "Name": "Bowling"
             },
             "geometry": {
@@ -227,6 +231,7 @@ const geoJSONCollection = {
         {
             "type": "Feature",
             "properties": {
+                "RoomID": "R105",
                 "Name": "Lower Climbing Wall"
             },
             "geometry": {
@@ -260,6 +265,7 @@ const geoJSONCollection = {
         {
             "type": "Feature",
             "properties": {
+                "RoomID": "R106",
                 "Name": "Men's Restroom"
             },
             "geometry": {
@@ -293,6 +299,7 @@ const geoJSONCollection = {
         {
             "type": "Feature",
             "properties": {
+                "RoomID": "R107",
                 "Name": "The Sett"
             },
             "geometry": {
@@ -326,6 +333,7 @@ const geoJSONCollection = {
         {
             "type": "Feature",
             "properties": {
+                "RoomID": "R108",
                 "Name": "Service and Storage"
             },
             "geometry": {
@@ -443,6 +451,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R401",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.00473181661376,
@@ -785,6 +794,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R402",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.00133961597314,
@@ -857,6 +867,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R403",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.00182804356922,
@@ -961,6 +972,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R404",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.00170751924737,
@@ -1029,6 +1041,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R405",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000195892655701,
@@ -1065,6 +1078,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R406",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000198470407547,
@@ -1101,6 +1115,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R407",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000202638165968,
@@ -1137,6 +1152,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R408",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000204505226532,
@@ -1173,6 +1189,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R409",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000211734112543,
@@ -1209,6 +1226,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R410",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000212327600555,
@@ -1245,6 +1263,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R411",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.00022778106591,
@@ -1281,6 +1300,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R412",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000275121128219,
@@ -1317,6 +1337,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R413",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.00023847017918,
@@ -1353,6 +1374,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R414",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000263000521497,
@@ -1393,6 +1415,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R415",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000269020949938,
@@ -1429,6 +1452,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R416",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000276474462277,
@@ -1469,6 +1493,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R417",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000284275806275,
@@ -1505,6 +1530,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R418",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000331069043309,
@@ -1545,6 +1571,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R419",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000364646094316,
@@ -1589,6 +1616,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R420",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000350023836396,
@@ -1633,6 +1661,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R421",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000347825314215,
@@ -1669,6 +1698,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R422",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000374979112915,
@@ -1709,6 +1739,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R423",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000483140602762,
@@ -1745,6 +1776,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R424",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000545703946393,
@@ -1801,6 +1833,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R425",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000874950640968,
@@ -1877,6 +1910,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R426",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000571835723746,
@@ -1925,6 +1959,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R427",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.00167854467128,
@@ -2017,6 +2052,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R428",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000649630258989,
@@ -2053,6 +2089,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R429",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000349932371959,
@@ -2113,6 +2150,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R430",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000121196623023,
@@ -2149,6 +2187,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R431",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000136172268533,
@@ -2185,6 +2224,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R432",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000146602646001,
@@ -2221,6 +2261,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R433",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.00014373615207,
@@ -2257,6 +2298,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R434",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000140719870247,
@@ -2297,6 +2339,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R435",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000178538194323,
@@ -2341,6 +2384,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R436",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.00015719805133,
@@ -2381,6 +2425,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R437",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000151929294387,
@@ -2421,6 +2466,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R438",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000157936619212,
@@ -2461,6 +2507,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R439",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000173284673699,
@@ -2501,6 +2548,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R440",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000245122241517,
@@ -2537,6 +2585,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R441",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000212479135784,
@@ -2573,6 +2622,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R442",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000255039560351,
@@ -2617,6 +2667,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R443",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000322888077609,
@@ -2677,6 +2728,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R444",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000153755478942,
@@ -2713,6 +2765,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R445",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000166839336733,
@@ -2757,6 +2810,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R446",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000170347001941,
@@ -2797,6 +2851,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R447",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000178138098977,
@@ -2837,6 +2892,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R448",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000284751621218,
@@ -2881,6 +2937,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R449",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000961964146846,
@@ -2981,6 +3038,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R450",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000166053328369,
@@ -3021,6 +3079,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R451",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000170483434144,
@@ -3061,6 +3120,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R452",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000171205119302,
@@ -3097,6 +3157,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R453",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000174422494883,
@@ -3133,6 +3194,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R454",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000204744682401,
@@ -3173,6 +3235,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R455",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.00018468125918,
@@ -3209,6 +3272,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R456",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000157976882454,
@@ -3245,6 +3309,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R457",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000182590253999,
@@ -3281,6 +3346,7 @@ const geoJSONCollection = {
             {
                 "type": "Feature",
                 "properties": {
+                "RoomID": "R458",
                     "Name": null,
                     "Label": null,
                     "SHAPE_Leng": 0.000297426059574,
