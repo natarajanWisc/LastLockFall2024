@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import MapboxContainer from './components/MapboxContainer';
+import ConferenceRooms from './components/ConferenceRooms'
 import NewMapPage from './pages/NewMapPage';
 import Navigation from './components/Navigation';
 import LoginPage from './components/LoginPage';
@@ -33,6 +34,7 @@ function App() {
       <Routes>
         {loggedIn ? <Route path="/" element={<MapboxContainer username={username} />}/>: <Route path="/" element= {<LoginPage onLogin={handleLogin} />}/>}
         <Route path="/new-map-page" element={<NewMapPage />} />
+        <Route path="/conference-rooms" element={<ConferenceRooms username={username} />} />      
       </Routes>
     </Router>
   );
