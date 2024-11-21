@@ -3,7 +3,6 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { roomLog, batteryPercentage } from '../assets/sampleRoomData';
 import NotiMenu from './modalMenus/NotiMenu';
 import TimePickerMenu from './modalMenus/TimePickerMenu';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const RoomModal = ({ room, onClose, originCoords }) => {
     const [isLogOpen, setIsLogOpen] = useState(false);
