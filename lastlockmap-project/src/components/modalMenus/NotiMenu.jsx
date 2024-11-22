@@ -5,8 +5,8 @@ import { mdiBellOutline, mdiBell, mdiBellAlert } from '@mdi/js';
 const NotiMenu = ({ isOpen, onStatusChange, currentStatus }) => {
     const notificationMenuStyle = {
         position: 'absolute',
-        top: '-165px',
-        right: '30px',
+        top: '-178px',
+        right: '10px',
         backgroundColor: '#333333',
         border: '1px solid #4091F7',
         borderRadius: '4px',
