@@ -1,37 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { roomLog, batteryPercentage } from '../assets/sampleRoomData';
 import NotiMenu from './modalMenus/NotiMenu';
 import TimePickerMenu from './modalMenus/TimePickerMenu';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const RoomModal = ({ room, onClose, originCoords }) => {
+const RoomModal = ({ room, onClose }) => {
     const [isLogOpen, setIsLogOpen] = useState(false);
-    const [roomHours, setRoomHours] = useState(null)
     const [alertStatus, setAlertStatus] = useState("off")
     const [isNotiMenuOpen, setIsNotiMenuOpen] = useState(false);
     const [isTimePickerOpen, setIsTimePickerOpen] = useState(false);
     const [timePickerType, setTimePickerType] = useState('opening');
-    const [openingTime, setOpeningTime] = useState(null);
-    const [closingTime, setClosingTime] = useState(null);
     const [timePickerStep, setTimePickerStep] = useState(1);
-    const [isSavingTime, setIsSavingTime] = useState(false);
-    // Get viewport dimensions for animation
-    // const [viewport, setViewport] = useState({
-    //     width: window.innerWidth,
-    //     height: window.innerHeight
-    // });
-
-    // useEffect(() => {
-    //     const handleResize = () => {
-    //         setViewport({
-    //             width: window.innerWidth,
-    //             height: window.innerHeight
-    //         });
-    //     };
-
-    //     window.addEventListener('resize', handleResize);
-    //     return () => window.removeEventListener('resize', handleResize);
-    // }, [room]);
+    const modalRef = useRef(null);
+    const hoursRef = useRef({
+        opening: null,
+        closing: null
+    });
+    const [, forceUpdate] = useState({})
 
     useEffect(() => {
         const savedHours = localStorage.getItem(getHoursStorageKey());
@@ -39,9 +25,9 @@ const RoomModal = ({ room, onClose, originCoords }) => {
         
         if (savedHours) {
             const [opening, closing] = savedHours.split(' - ');
-            if (opening !== '??:??') setOpeningTime(opening);
-            if (closing !== '??:??') setClosingTime(closing);
-            setRoomHours(savedHours);
+            if (opening !== '??:??') hoursRef.current.opening = opening;
+            if (closing !== '??:??') hoursRef.current.closing = closing;
+            forceUpdate({});
         }
 
         if (savedAlertStatus) {
@@ -49,21 +35,31 @@ const RoomModal = ({ room, onClose, originCoords }) => {
         }
     }, [room]);
 
-    const modalStyle = {
+    const modalContainerStyle = {
         position: 'fixed',
-        top: "50%",
-        left: "50%",
-        transform: 'translate(-50%, -50%)',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+        pointerEvents: 'none',
+    };
+
+    const modalStyle = {
         backgroundColor: '#333333',
         border: '2px solid #4091F7',
         borderRadius: '8px',
         padding: '20px',
-        zIndex: 1000,
         maxWidth: '500px',
         width: '100%',
         fontFamily: '"Roboto", sans-serif',
         fontWeight: 300,
-        fontStyle: 'normal'
+        fontStyle: 'normal',
+        pointerEvents: 'auto',
+        position: 'relative'
     };
 
     const headerStyle = {
@@ -83,6 +79,20 @@ const RoomModal = ({ room, onClose, originCoords }) => {
         display: 'flex',
         alignItems: 'center',
         gap: '12px'
+    };
+
+    const timePickerStyle = {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        pointerEvents: 'none',
+        // transform: 'translateY(-100%)', // Move up by its own height
+        zIndex: 1001
     };
 
     const logInfoStyle = {
@@ -158,140 +168,129 @@ const RoomModal = ({ room, onClose, originCoords }) => {
     const mostRecent =  `${roomLog[0].name} (${roomLog[0].hierarchy}) - ${roomLog[0].date} ${roomLog[0].time}`
     
     const handleTimeSet = (time, type) => {
-        console.log(time);
-        if (timePickerStep === 1) {
-            if (type === 'opening') {
-                setOpeningTime(time);
-                setTimePickerType('closing');
-            } else {
-                setClosingTime(time);
-                setTimePickerType('opening');
-            }
+        if (type === 'opening') {
+            hoursRef.current.opening = time;
         } else {
-            if (type === 'closing') {
-                setClosingTime(time);
-            } else {
-                setOpeningTime(time);
-            }
-            const hours = `${openingTime || '??:??'} - ${closingTime || '??:??'}`;
-            setRoomHours(hours);
-            setIsSavingTime(true);
-            localStorage.setItem(getHoursStorageKey(), hours);
-            setIsSavingTime(false);
+            hoursRef.current.closing = time;
         }
+        const hours = `${hoursRef.current.opening || '??:??'} - ${hoursRef.current.closing || '??:??'}`;
+        localStorage.setItem(getHoursStorageKey(), hours);
+        forceUpdate({});
     };
 
     const handleNotiChange = (status) => {
         setAlertStatus(status);
         localStorage.setItem(getAlertStorageKey(), status);
-        // console.log(getAlertStorageKey());
         setIsNotiMenuOpen(false);
     };
 
-    // Calculate the scale and position for the animation
-    // const initialScale = 0.01;
-    // const targetX = viewport.width / 2;
-    // const targetY = viewport.height / 2;
+    const modalVariants = {
+        initial: {
+            scale: 0.3,
+            opacity: 0
+        },
+        animate: {
+            scale: 1,
+            opacity: 1,
+            transition: {
+                duration: 0.3,
+                ease: [0.4, 0, 0.2, 1]
+            }
+        },
+        exit: {
+            opacity: 0,
+            scale: 0.3,
+            transition: {
+                duration: 0.3,
+            }
+        }
+    };
 
-    // const modalVariants = {
-    //     initial: {
-    //         scale: initialScale,
-    //         x: originCoords.x - targetX,
-    //         y: originCoords.y - targetY,
-    //         opacity: 0
-    //     },
-    //     animate: {
-    //         scale: 1,
-    //         x: 0,
-    //         y: 0,
-    //         opacity: 1,
-    //         transition: {
-    //             duration: 0.3,
-    //             ease: "easeOut"
-    //         }
-    //     },
-    //     exit: {
-    //         scale: initialScale,
-    //         x: originCoords.x - targetX,
-    //         y: originCoords.y - targetY,
-    //         opacity: 0,
-    //         transition: {
-    //             duration: 0.2,
-    //             ease: "easeIn"
-    //         }
-    //     }
-    // };
+    // <div style={modalStyle}>
 
-    // style={modalStyle}
-    return (
-        <div style={modalStyle}>
-            <h2 style={headerStyle}>
-                {room.name}
-                <div 
-                    className="bell-icon"
-                    onClick={() => setIsNotiMenuOpen(!isNotiMenuOpen)}
-                >
-                    <NotiMenu 
-                        isOpen={isNotiMenuOpen}
-                        onStatusChange={handleNotiChange}
-                        currentStatus={alertStatus}
-                    />
-                </div>
-                <BatteryIcon percentage={batteryPercentage} />
-            </h2>
-            <p style={hoursInfoStyle}>
-                <strong>Hours:</strong> 
-                <span 
-                    onClick={() => {
-                        setTimePickerType('opening');
-                        setIsTimePickerOpen(true);
-                        // setTimePickerStep(1); // NEW
-                    }}
-                    style={{ cursor: 'pointer', color: '#FFFFFF' }}
-                >
-                    {openingTime ? openingTime : '??:??'}
-                </span>
-                {' - '}
-                <span
-                    onClick={() => {
-                        setTimePickerType('closing');
-                        setIsTimePickerOpen(true);
-                        // setTimePickerStep(1); // NEW
-                    }}
-                    style={{ cursor: 'pointer', color: '#FFFFFF' }}
-                >
-                    {closingTime ? closingTime : '??:??'}
-                </span>
-                <TimePickerMenu
-                    isOpen={isTimePickerOpen}
-                    onClose={() => {
-                        setIsTimePickerOpen(false);
-                        setTimePickerStep(1); // NEW 
-                    }}
-                    onTimeSet={handleTimeSet}
-                    onStepChange={setTimePickerStep} // NEW
-                    type={timePickerType}
-                    onTypeChange = {setTimePickerType}
-                />
-            </p>
-            <div style={logInfoStyle}>
-                <button onClick={() => setIsLogOpen(!isLogOpen)} style={toggleLogStyle}>
-                    <p style={logLineStyle}><strong>Entry Log: </strong>{mostRecent}</p>
-                    {isLogOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                </button>
-                {isLogOpen && (
-                    <div style={dropdownStyle}>
-                        {sortedLog.map((entry, index) => (
-                            <div key={index} style={dropdownItemStyle}>
-                                {entry.name} ({entry.hierarchy}) - {entry.date} {entry.time}
-                            </div>
-                        ))}
+    return <>
+        <div style={modalContainerStyle}>
+            <motion.div
+                ref={modalRef}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={modalVariants}
+                style={modalStyle}
+            >
+                <h2 style={headerStyle}>
+                    {room.name}
+                    <div 
+                        className="bell-icon"
+                        onClick={() => setIsNotiMenuOpen(!isNotiMenuOpen)}
+                    >
+                        <NotiMenu 
+                            isOpen={isNotiMenuOpen}
+                            onStatusChange={handleNotiChange}
+                            currentStatus={alertStatus}
+                        />
                     </div>
+                    <BatteryIcon percentage={batteryPercentage} />
+                </h2>
+                <p style={hoursInfoStyle}>
+                    <strong>Hours:</strong> 
+                    <span 
+                        onClick={() => {
+                            setTimePickerType('opening');
+                            setIsTimePickerOpen(true);
+                            setTimePickerStep(1); 
+                        }}
+                        style={{ cursor: 'pointer', color: '#FFFFFF' }}
+                    >
+                        {hoursRef.current.opening || '??:??'}
+                    </span>
+                    {' - '}
+                    <span
+                        onClick={() => {
+                            setTimePickerType('closing');
+                            setIsTimePickerOpen(true);
+                            setTimePickerStep(1); 
+                        }}
+                        style={{ cursor: 'pointer', color: '#FFFFFF' }}
+                    >
+                        {hoursRef.current.closing || '??:??'}
+                    </span>
+                </p>
+                <div style={logInfoStyle}>
+                    <button onClick={() => setIsLogOpen(!isLogOpen)} style={toggleLogStyle}>
+                        <p style={logLineStyle}><strong>Entry Log: </strong>{mostRecent}</p>
+                        {isLogOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                    </button>
+                    {isLogOpen && (
+                        <div style={dropdownStyle}>
+                            {sortedLog.map((entry, index) => (
+                                <div key={index} style={dropdownItemStyle}>
+                                    {entry.name} ({entry.hierarchy}) - {entry.date} {entry.time}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+                <button style={closeButtonStyle} onClick={onClose}>Close</button>
+
+                {isTimePickerOpen && (
+                    <TimePickerMenu
+                        isOpen={isTimePickerOpen}
+                        onClose={() => {
+                            setIsTimePickerOpen(false);
+                            setTimePickerStep(1); 
+                        }}
+                        onTimeSet={handleTimeSet}
+                        onStepChange={setTimePickerStep} 
+                        type={timePickerType}
+                        currentStep={timePickerStep}
+                        onTypeChange={setTimePickerType}  
+                        style={timePickerStyle}              
+                    />
                 )}
-            </div>
-            <button style={closeButtonStyle} onClick={onClose}>Close</button>
+            </motion.div>
         </div>
-    );
+    </>;
 };
 
 export default RoomModal;

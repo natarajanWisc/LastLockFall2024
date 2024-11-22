@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import TimePicker from 'react-time-picker';
 import { ChevronLeft } from 'lucide-react';
 
-const TimePickerMenu = ({ isOpen, onClose, onTimeSet, type = 'opening', onStepChange, onTypeChange }) => {
+const TimePickerMenu = ({ isOpen, onClose, onTimeSet, type = 'opening', currentStep = 1, onStepChange, onTypeChange }) => {
     const [selectedTime, setSelectedTime] = useState(null);
-    const [step, setStep] = useState(1);
 
     const menuStyle = {
         position: 'absolute',
@@ -63,52 +62,33 @@ const TimePickerMenu = ({ isOpen, onClose, onTimeSet, type = 'opening', onStepCh
     const handleNextStep = () => {
         if (selectedTime) {
             onTimeSet(selectedTime, type);
-            if (step === 1) {
-                setStep(2);
+            if (currentStep === 1) {
                 onStepChange(2);
+                onTypeChange(type === 'opening' ? 'closing' : 'opening');
             } else {
                 onClose();
             }
-            if (type === 'opening') {
-                onTypeChange('closing')
-            } else {
-                onTypeChange('opening')
-            }
+            setSelectedTime(null)
         }
-        setSelectedTime(null)
     };
 
     const handleBack = () => {
-        setStep(1);
         onStepChange(1);
-        if (type === 'opening') {
-            onTypeChange('closing')
-        } else {
-            onTypeChange('opening')
-        }
+        onTypeChange(type === 'opening' ? 'closing' : 'opening');
         setSelectedTime(null)
     };
 
     if (!isOpen) return null;
 
-    const getHeaderText = () => {
-        return type === 'opening' ? 'Opening Time' : 'Closing Time';
-    };
-
-    const getButtonText = () => {
-        if (step === 2) return 'Set Hours';
-        return type === 'opening' ? 'Set Opening Time' : 'Set Closing Time';
-    };
-
     return (
         <div style={menuStyle}>
             <div style={headerStyle}>
-                {step === 2 && (
+                {currentStep === 2 && (
                     <button style={backButtonStyle} onClick={handleBack}>
                         <ChevronLeft size={20} />
                     </button>
                 )}
-                {getHeaderText()}
+                {type === 'opening' ? 'Opening Time' : 'Closing Time'}
             </div>
             
             <TimePicker
@@ -124,7 +104,7 @@ const TimePickerMenu = ({ isOpen, onClose, onTimeSet, type = 'opening', onStepCh
                 onClick={handleNextStep}
                 disabled={!selectedTime}
             >
-                {getButtonText()}
+                {currentStep === 2 ? 'Set Hours' : `Set ${type === 'opening' ? 'Opening' : 'Closing'} Time`}
             </button>
             
             <button 

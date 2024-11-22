@@ -133,18 +133,15 @@ function MapboxContainer({username}) {
                     time={time}
                     setTime={setTime}
                 />
-                <AnimatePresence>
+                <AnimatePresence mode='wait'>
                     {selectedRoom && (
-                        <motion.div
-                            layoutId="modal"
-                            transition={{ type:"spring", duration: 1}}
-                        >
+                        
                             <RoomModal
                                 room={selectedRoom}
                                 onClose={() => setSelectedRoom(null)}
                                 originCoords={selectedRoom.clickCoords}
                             />
-                        </motion.div>
+                        
                     )}
                 </AnimatePresence>
                 <div className="debug-overlay" style={{
