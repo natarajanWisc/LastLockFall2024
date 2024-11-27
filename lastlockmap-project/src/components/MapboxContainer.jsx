@@ -5,6 +5,7 @@ import RoomModal from './RoomModal';
 import MapInitialization from './helpers/MapInitialization';
 import geoJSONCollection from '../assets/floorMap';
 import locksGeoJSON from '../assets/locks';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const AMERICAN_CENTER = [-100, 40];
 
@@ -132,13 +133,17 @@ function MapboxContainer({username}) {
                     time={time}
                     setTime={setTime}
                 />
-                {selectedRoom && (
-                    <RoomModal
-                        room={selectedRoom}
-                        onClose={() => setSelectedRoom(null)}
-                        originCoords={selectedRoom.clickCoords}
-                    />
-                )}
+                <AnimatePresence mode='wait'>
+                    {selectedRoom && (
+                        
+                            <RoomModal
+                                room={selectedRoom}
+                                onClose={() => setSelectedRoom(null)}
+                                originCoords={selectedRoom.clickCoords}
+                            />
+                        
+                    )}
+                </AnimatePresence>
                 <div className="debug-overlay" style={{
                     position: 'absolute',
                     top: '10px',
