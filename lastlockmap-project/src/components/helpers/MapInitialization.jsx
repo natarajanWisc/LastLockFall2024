@@ -288,6 +288,7 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
                             x: rect.x,
                             y: rect.y
                         },
+                        color: el.style.backgroundColor
                     });
                 });
     
