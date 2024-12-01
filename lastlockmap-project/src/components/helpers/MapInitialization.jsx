@@ -164,6 +164,15 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
                 filter: ['==', ['number', ['get', 'hour']], time]
             });
         }
+        if (selectedBuilding){
+            const currentFloorId = selectedBuilding.id
+            const isUnionSouthI = currentFloorId === 'UNION_SOUTH_I';
+            if (!isUnionSouthI){
+                clearLocksCirclesLayer();
+            }else{
+                addLocksCirclesLayer();
+            }
+        }
     };
 
     // adds a clickable marker for each room
@@ -424,11 +433,67 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
 
     }, [selectedBuilding, mapInitialized]);
 
+    // Function to clear or hide the locks-circles layer
+    const clearLocksCirclesLayer = () => {
+        if (mapRef.current) {
+            // Check if the layer exists before removing it
+            if (mapRef.current.getLayer('locks-circles')) {
+                mapRef.current.removeLayer('locks-circles');
+                console.log('Removed locks-circles layer');
+            }
+        }
+    };
+
+    const addLocksCirclesLayer = () => {
+        if (mapRef.current){
+            if (!mapRef.current.getLayer('locks-circles')) {
+                mapRef.current.addLayer({
+                    id: 'locks-circles',
+                    type: 'circle',
+                    source: 'locks',
+                    paint: {
+                        'circle-radius': [
+                            'interpolate',
+                            ['linear'],
+                            ['get', 'intensity'],
+                            1, 10,
+                            10, 30
+                        ],
+                        'circle-color': [
+                            'interpolate',
+                            ['linear'],
+                            ['get', 'intensity'],
+                            1, 'green',
+                            5, 'yellow',
+                            10, 'red'
+                        ],
+                        'circle-stroke-color': 'white',
+                        'circle-stroke-width': 1,
+                        'circle-opacity': 0.8
+                    },
+                    layout: {
+                        'visibility': showTimeSeries ? 'visible' : 'none'
+                    },
+                    filter: ['==', ['number', ['get', 'hour']], time]
+                });
+            }
+        }
+    }
+
     // Effect for handling time changes
     useEffect(() => {
         if (mapRef.current && mapRef.current.getStyle() && mapRef.current.getLayer('locks-circles')) {
             mapRef.current.setFilter('locks-circles', ['==', ['number', ['get', 'hour']], time]);
             // console.log('Updated filter for hour:', time);
+            if (selectedBuilding){
+                const currentFloorId = selectedBuilding.id
+                const isUnionSouthI = currentFloorId === 'UNION_SOUTH_I';
+                if (!isUnionSouthI){
+                    clearLocksCirclesLayer();
+                }else{
+                    addLocksCirclesLayer();
+                }
+            }
         }
     }, [time]);
     
@@ -436,20 +501,31 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
     useEffect(() => {
         if (!mapRef.current || !mapRef.current.getStyle()) return;
 
-        if (showTimeSeries) {
-            setTime(12); // Set default hour to 12
-            // console.log('Time series visualization enabled, setting default hour to 12');
-            // // Update the map filter
-            // if (mapRef.current && mapRef.current.getLayer('locks-heatmap')) {
-            //     mapRef.current.setFilter('locks-heatmap', ['==', ['number', ['get', 'hour']], 12]);
-            // }
-        }
+        // Check if the current floor is UNION_SOUTH_IV
+        if (selectedBuilding){
+            const currentFloorId = selectedBuilding.id
+            const isUnionSouthI = currentFloorId === 'UNION_SOUTH_I';
+            console.log(selectedBuilding)
 
-        if (mapRef.current.getLayer('locks-circles')) {
-            const visibility = showTimeSeries ? 'visible' : 'none';
-            mapRef.current.setLayoutProperty('locks-circles', 'visibility', visibility);
-            console.log(`Heatmap visibility set to: ${visibility}`);
+            if (showTimeSeries && isUnionSouthI) {
+                addLocksCirclesLayer();
+                setTime(12); // Set default hour to 12
+                // console.log('Time series visualization enabled, setting default hour to 12');
+                // // Update the map filter
+                // if (mapRef.current && mapRef.current.getLayer('locks-heatmap')) {
+                //     mapRef.current.setFilter('locks-heatmap', ['==', ['number', ['get', 'hour']], 12]);
+                // }
+            }else {
+                clearLocksCirclesLayer();
+            }
+
+            if (mapRef.current.getLayer('locks-circles')) {
+                const visibility = showTimeSeries && isUnionSouthI ? 'visible' : 'none';
+                mapRef.current.setLayoutProperty('locks-circles', 'visibility', visibility);
+                console.log(`Heatmap visibility set to: ${visibility}`);
+            }
         }
+        
     }, [showTimeSeries]);
 
     useEffect(() => {
