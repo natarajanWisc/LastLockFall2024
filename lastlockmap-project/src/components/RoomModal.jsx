@@ -53,7 +53,7 @@ const RoomModal = ({ room, onClose }) => {
 
     const modalStyle = {
         backgroundColor: '#333333',
-        border: '2px solid #4091F7',
+        border: `2px solid ${room.color || '#4091F7'}`,
         borderRadius: '8px',
         padding: '20px',
         maxWidth: '500px',
@@ -69,7 +69,7 @@ const RoomModal = ({ room, onClose }) => {
         color: '#FFFFFF',
         marginTop: '0',
         marginBottom: '20px',
-        borderBottom: '1px solid #4091F7',
+        borderBottom: `1px solid ${room.color || '#4091F7'}`,
         paddingBottom: '10px',
         position: 'relative',
         fontSize: '24px'
@@ -116,14 +116,15 @@ const RoomModal = ({ room, onClose }) => {
     };
 
     const closeButtonStyle = {
-        backgroundColor: '#4091F7',
-        color: '#FFFFFF',
-        border: 'none',
-        padding: '10px 20px',
-        borderRadius: '4px',
-        cursor: 'pointer',
-        float: 'right',
+        backgroundColor: 'transparent', 
+        color: '#FFF',             
+        border: `2px solid ${room.color || '#4091F7'}`,   
+        padding: '10px 20px',          
+        borderRadius: '4px',          
+        cursor: 'pointer',            
+        float: 'right',      
     };
+    
 
     const dropdownStyle = {
         backgroundColor: '#444444',
