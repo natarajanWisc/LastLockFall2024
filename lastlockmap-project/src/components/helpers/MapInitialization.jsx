@@ -133,7 +133,37 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
         // });
         
         // Add locks visualization if it doesn't exist
-        
+        if (!mapRef.current.getLayer('locks-circles')) {
+            mapRef.current.addLayer({
+                id: 'locks-circles',
+                type: 'circle',
+                source: 'locks',
+                paint: {
+                    'circle-radius': [
+                        'interpolate',
+                        ['linear'],
+                        ['get', 'intensity'],
+                        1, 10,
+                        10, 30
+                    ],
+                    'circle-color': [
+                        'interpolate',
+                        ['linear'],
+                        ['get', 'intensity'],
+                        1, 'green',
+                        5, 'yellow',
+                        10, 'red'
+                    ],
+                    'circle-stroke-color': 'white',
+                    'circle-stroke-width': 1,
+                    'circle-opacity': 0.8
+                },
+                layout: {
+                    'visibility': showTimeSeries ? 'visible' : 'none'
+                },
+                filter: ['==', ['number', ['get', 'hour']], time]
+            });
+        }
     };
 
     // adds a clickable marker for each room
@@ -394,7 +424,33 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
 
     }, [selectedBuilding, mapInitialized]);
 
+    // Effect for handling time changes
+    useEffect(() => {
+        if (mapRef.current && mapRef.current.getStyle() && mapRef.current.getLayer('locks-circles')) {
+            mapRef.current.setFilter('locks-circles', ['==', ['number', ['get', 'hour']], time]);
+            // console.log('Updated filter for hour:', time);
+        }
+    }, [time]);
     
+    // Effect for handling time series visibility
+    useEffect(() => {
+        if (!mapRef.current || !mapRef.current.getStyle()) return;
+
+        if (showTimeSeries) {
+            setTime(12); // Set default hour to 12
+            // console.log('Time series visualization enabled, setting default hour to 12');
+            // // Update the map filter
+            // if (mapRef.current && mapRef.current.getLayer('locks-heatmap')) {
+            //     mapRef.current.setFilter('locks-heatmap', ['==', ['number', ['get', 'hour']], 12]);
+            // }
+        }
+
+        if (mapRef.current.getLayer('locks-circles')) {
+            const visibility = showTimeSeries ? 'visible' : 'none';
+            mapRef.current.setLayoutProperty('locks-circles', 'visibility', visibility);
+            console.log(`Heatmap visibility set to: ${visibility}`);
+        }
+    }, [showTimeSeries]);
 
     useEffect(() => {
         if (!mapRef.current || !mapRef.current.getStyle()) return;
