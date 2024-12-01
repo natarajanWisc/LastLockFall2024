@@ -5,6 +5,7 @@ import RoomModal from './RoomModal';
 import MapInitialization from './helpers/MapInitialization';
 import geoJSONCollection from '../assets/floorMap';
 import locksGeoJSON from '../assets/locks';
+import HoverRoomModal from './HoverRoomModal';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AMERICAN_CENTER = [-100, 40];
@@ -134,6 +135,7 @@ function MapboxContainer({username}) {
                     time={time}
                     setTime={setTime}
                     setSelectedRoomHover={setSelectedRoomHover}
+
                 />
                 <AnimatePresence mode='wait'>
                     {selectedRoom && (
