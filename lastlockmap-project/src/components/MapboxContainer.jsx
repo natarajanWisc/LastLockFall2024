@@ -4,7 +4,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import RoomModal from './RoomModal';
 import MapInitialization from './helpers/MapInitialization';
 import geoJSONCollection from '../assets/floorMap';
-import locksGeoJSON from '../assets/locks';
+;import locksGeoJSON from '../assets/locks';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AMERICAN_CENTER = [-100, 40];
@@ -21,6 +21,8 @@ function MapboxContainer({username}) {
     const [showTimeSeries, setShowTimeSeries] = useState(false); // State for time series checkbox
     const [showRoomNames, setShowRoomNames] = useState(false); // State for room names checkbox
     const [time, setTime] = useState(12); // Initial time
+    const [floor, setFloor] = useState(0);
+    const [selectedFloor,setSelectedFloor] = useState(0)
     //New debugging code
     const [debugInfo, setDebugInfo] = useState({
         startingZoom: null,
@@ -79,11 +81,59 @@ function MapboxContainer({username}) {
         };
     }, []);
 
-
+    useEffect(() => {
+        if (!mapRef.current || !mapRef.current.isStyleLoaded()) {
+            console.warn("Map style is not fully loaded 1yet.");
+            return;
+        }
+    
+        if (!mapRef.current.getLayer('locks-circles')) {
+            mapRef.current.addLayer({
+                id: 'locks-circles',
+                type: 'circle',
+                source: 'locks',
+                paint: {
+                    'circle-radius': [
+                        'interpolate',
+                        ['linear'],
+                        ['get', 'intensity'],
+                        1, 10,
+                        10, 30
+                    ],
+                    'circle-color': [
+                        'interpolate',
+                        ['linear'],
+                        ['get', 'intensity'],
+                        1, 'green',
+                        5, 'yellow',
+                        10, 'red'
+                    ],
+                    'circle-stroke-color': 'white',
+                    'circle-stroke-width': 1,
+                    'circle-opacity': 0.8
+                },
+                layout: {
+                    'visibility': showTimeSeries ? 'visible' : 'none'
+                },
+                filter: [
+                    'all',
+                    ['==', ['number', ['get', 'hour']], time],
+                    ['==', ['get', 'floor'], selectedFloor]
+                ]
+            });
+        }
+    }, [mapRef, mapInitialized, showTimeSeries, time, selectedFloor]); // Dependencies
+    
     // handles a floor plan being selected by the user
     function handleFloorSelection(event) {
         const buildingId = event.target.value;
         const selected = buildings.find(building => building.id === buildingId);
+        console.log(buildingId)
+        
+        const selectedFloor = buildingId == 'UNION_SOUTH_I' ? 1: 4;
+        setFloor(selectedFloor);
+        console.log(selectedFloor) // This will log the correct floor
+        
         setSelectedBuilding(selected);
     }
     const handleTimeChange = (event) => {
@@ -91,10 +141,14 @@ function MapboxContainer({username}) {
         setTime(hour);
         // console.log('Updating filter for hour:', hour);
         // Update the map filter
-        if (mapRef.current.getLayer('locks-heatmap')) {
-          mapRef.current.setFilter('locks-heatmap', ['==', ['number', ['get', 'hour']], hour]);
-        }
-    
+        console.log(floor)
+        
+        mapRef.current.setFilter('locks-heatmap', [
+            'all',
+            ['==', ['number', ['get', 'hour']], hour],
+            ['==', ['get', 'floor'], selectedFloor] // Convert floor to string
+          ]);
+        console.log('floor ' + locksGeoJSON.features[0].properties.floor)
         // Convert 0-23 hour to AMPM format
         const ampm = hour >= 12 ? 'PM' : 'AM';
         const hour12 = hour % 12 ? hour % 12 : 12;
@@ -102,7 +156,31 @@ function MapboxContainer({username}) {
         // Update text in the UI
         document.getElementById('active-hour').innerText = hour12 + ampm;
       };
-
+    useEffect(() => {
+        if (!mapRef.current || !mapRef.current.isStyleLoaded()) {
+            console.warn("Map style is not fully loaded yet.");
+            return;
+        }
+    
+        if (showTimeSeries) {
+            setTime(12); // Example default
+            console.log("Time series visualization enabled, setting default hour to 12.");
+        }
+    
+        if (mapRef.current.getLayer('locks-circles')) {
+            const visibility = showTimeSeries ? 'visible' : 'none';
+            mapRef.current.setLayoutProperty('locks-circles', 'visibility', visibility);
+            console.log(`Heatmap visibility set to: ${visibility}`);
+        }
+    }, [showTimeSeries]);
+    // Effect for handling time changes
+    useEffect(() => {
+        if (mapRef.current && mapRef.current.isStyleLoaded() && mapRef.current.getStyle() && mapRef.current.getLayer('locks-circles')) {
+            mapRef.current.setFilter('locks-circles', ['==', ['number', ['get', 'hour']], time]);
+            // console.log('Updated filter for hour:', time);
+        }
+    }, [time]);
+    
     return (
         <div className="outer-container">
             <div className='inner-container'>
