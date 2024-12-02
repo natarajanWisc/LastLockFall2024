@@ -70,7 +70,6 @@ const HoverRoomModal = ({ room, style }) => {
             <BatteryIcon percentage={batteryPercentage} />
             <p style={hoursInfoStyle}>
                 <strong>Hours: </strong> 
-                {/* {room.openingTime || '??:??'} - {room.closingTime || '??:??'} */}
                 {savedHours ? savedHours: "Not Specified"}
             </p>
         </div>
