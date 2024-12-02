@@ -19,11 +19,8 @@ const HoverRoomModal = ({ room, style }) => {
         return `room_hours_${room.name.toLowerCase().replace(/\s+/g, '_')}`;
     };
 
-    const hours =localStorage.getItem(getHoursStorageKey());
-
-    const [opening, closing] = hours? hours.split(' - ') : [null, null];
-
-    const [isHovered, setIsHovered] = useState(false);
+    const savedHours = localStorage.getItem(getHoursStorageKey());
+    console.log(savedHours);
 
     // Function to handle when modal is hovered
     const handleMouseEnter = () => {
@@ -64,6 +61,8 @@ const HoverRoomModal = ({ room, style }) => {
         fontSize: '10px' // Smaller font
     };
 
+    console.log(room);
+
     return (
         <div id = 'hover-modal'
             style={{ ...hoverModalStyle, ...style }}
@@ -73,8 +72,9 @@ const HoverRoomModal = ({ room, style }) => {
             <h2 style={headerStyle}>{room.name}</h2>
             <BatteryIcon percentage={batteryPercentage} />
             <p style={hoursInfoStyle}>
-                <strong>Hours:</strong> 
-                {room.openingTime || '??:??'} - {room.closingTime || '??:??'}
+                <strong>Hours: </strong> 
+                {/* {room.openingTime || '??:??'} - {room.closingTime || '??:??'} */}
+                {savedHours ? savedHours: "Not Specified"}
             </p>
         </div>
     );
