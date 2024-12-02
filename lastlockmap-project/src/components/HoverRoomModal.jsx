@@ -20,7 +20,6 @@ const HoverRoomModal = ({ room, style }) => {
     };
 
     const savedHours = localStorage.getItem(getHoursStorageKey());
-    console.log(savedHours);
 
     // Function to handle when modal is hovered
     const handleMouseEnter = () => {
@@ -60,8 +59,6 @@ const HoverRoomModal = ({ room, style }) => {
         color: '#FFFFFF',
         fontSize: '10px' // Smaller font
     };
-
-    console.log(room);
 
     return (
         <div id = 'hover-modal'
