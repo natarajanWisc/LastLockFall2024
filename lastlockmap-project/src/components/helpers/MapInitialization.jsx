@@ -369,8 +369,8 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
                             lastEntry: feature.properties.LastEntry || 'No recent entries',
                             lockBattery: feature.properties.LockBattery || 'Unknown',
                             clickCoords: {
-                                x: rect.x,
-                                y: rect.y
+                                x: rect.x - 200,
+                                y: rect.y - 100
                             },
                         color: el.style.backgroundColor
                         });
