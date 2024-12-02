@@ -38,8 +38,8 @@ const RoomModal = ({ room, onClose }) => {
         
         if (savedHours) {
             const [opening, closing] = savedHours.split(' - ');
-            if (opening !== '??:??') hoursRef.current.opening = opening;
-            if (closing !== '??:??') hoursRef.current.closing = closing;
+            if (opening !== 'Set Open') hoursRef.current.opening = opening;
+            if (closing !== 'Set Close') hoursRef.current.closing = closing;
             forceUpdate({});
         }
 
@@ -187,7 +187,7 @@ const RoomModal = ({ room, onClose }) => {
         } else {
             hoursRef.current.closing = time;
         }
-        const hours = `${hoursRef.current.opening || '??:??'} - ${hoursRef.current.closing || '??:??'}`;
+        const hours = `${hoursRef.current.opening || 'Set Open'} - ${hoursRef.current.closing || 'Set Close'}`;
         localStorage.setItem(getHoursStorageKey(), hours);
         forceUpdate({});
     };
@@ -273,9 +273,9 @@ const RoomModal = ({ room, onClose }) => {
                             setIsTimePickerOpen(true);
                             setTimePickerStep(1); 
                         }}
-                        style={{ cursor: 'pointer', color: '#FFFFFF' }}
+                        style={{ cursor: 'pointer', color: '#FFFFFF', textDecoration: 'underline' }}
                     >
-                        {hoursRef.current.opening || '??:??'}
+                        {hoursRef.current.opening || 'Set Open'}
                     </span>
                     {' - '}
                     <span
@@ -284,9 +284,9 @@ const RoomModal = ({ room, onClose }) => {
                             setIsTimePickerOpen(true);
                             setTimePickerStep(1); 
                         }}
-                        style={{ cursor: 'pointer', color: '#FFFFFF' }}
+                        style={{ cursor: 'pointer', color: '#FFFFFF', textDecoration: 'underline' }}
                     >
-                        {hoursRef.current.closing || '??:??'}
+                        {hoursRef.current.closing || 'Set Close'}
                     </span>
                 </p>
                 <div style={logInfoStyle}>
