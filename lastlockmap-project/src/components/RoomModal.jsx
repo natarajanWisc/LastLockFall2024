@@ -4,6 +4,10 @@ import { roomLog, batteryPercentage } from '../assets/sampleRoomData';
 import NotiMenu from './modalMenus/NotiMenu';
 import TimePickerMenu from './modalMenus/TimePickerMenu';
 import { motion, AnimatePresence } from 'framer-motion';
+import {Chart as ChartJS, registerables} from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+import locksGeoJSON from '../assets/locks';
+ChartJS.register(...registerables);
 
 const RoomModal = ({ room, onClose }) => {
     const [isLogOpen, setIsLogOpen] = useState(false);
@@ -18,6 +22,15 @@ const RoomModal = ({ room, onClose }) => {
         closing: null
     });
     const [, forceUpdate] = useState({})
+    const aggregateDataForBarChart = () => {
+        const roomData = locksGeoJSON.features.filter(feature => feature.properties.name === room.name);
+        const hours = Array.from({ length: 24 }, (_, i) => i);
+        const data = hours.map(hour => {
+            const hourData = roomData.filter(feature => feature.properties.hour === hour);
+            return hourData.reduce((sum, feature) => sum + feature.properties.intensity, 0);
+        });
+        return data;
+    };
 
     useEffect(() => {
         const savedHours = localStorage.getItem(getHoursStorageKey());
@@ -50,7 +63,7 @@ const RoomModal = ({ room, onClose }) => {
 
     const modalStyle = {
         backgroundColor: '#333333',
-        border: '2px solid #4091F7',
+        border: `2px solid ${room.color || '#4091F7'}`,
         borderRadius: '8px',
         padding: '20px',
         maxWidth: '500px',
@@ -66,7 +79,7 @@ const RoomModal = ({ room, onClose }) => {
         color: '#FFFFFF',
         marginTop: '0',
         marginBottom: '20px',
-        borderBottom: '1px solid #4091F7',
+        borderBottom: `1px solid ${room.color || '#4091F7'}`,
         paddingBottom: '10px',
         position: 'relative',
         fontSize: '24px'
@@ -113,14 +126,15 @@ const RoomModal = ({ room, onClose }) => {
     };
 
     const closeButtonStyle = {
-        backgroundColor: '#4091F7',
-        color: '#FFFFFF',
-        border: 'none',
-        padding: '10px 20px',
-        borderRadius: '4px',
-        cursor: 'pointer',
-        float: 'right',
+        backgroundColor: 'transparent', 
+        color: '#FFF',             
+        border: `2px solid ${room.color || '#4091F7'}`,   
+        padding: '10px 20px',          
+        borderRadius: '4px',          
+        cursor: 'pointer',            
+        float: 'right',      
     };
+    
 
     const dropdownStyle = {
         backgroundColor: '#444444',
@@ -207,6 +221,25 @@ const RoomModal = ({ room, onClose }) => {
     };
 
     // <div style={modalStyle}>
+    const barChartData = {
+        labels: Array.from({ length: 24 }, (_, i) => `${i}:00`), // Labels for each hour
+        datasets: [
+            {
+                label: 'Access Intensity',
+                data: aggregateDataForBarChart(), // Aggregated data for the bar chart
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+            },
+        ],
+    };
+    const barChartOptions = {
+        scales: {
+            y: {
+                beginAtZero: true,
+            },
+        },
+    };
 
     return <>
         <div style={modalContainerStyle}>
@@ -271,6 +304,7 @@ const RoomModal = ({ room, onClose }) => {
                         </div>
                     )}
                 </div>
+                <Bar data={barChartData} options={barChartOptions} />
                 <button style={closeButtonStyle} onClick={onClose}>Close</button>
 
                 {isTimePickerOpen && (
