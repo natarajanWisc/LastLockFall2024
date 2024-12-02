@@ -21,6 +21,7 @@ function MapboxContainer({username}) {
     const [mapInitialized, setMapInitialized] = useState(false);
     const [showTimeSeries, setShowTimeSeries] = useState(false); // State for time series checkbox
     const [showRoomNames, setShowRoomNames] = useState(false); // State for room names checkbox
+    const [showConferenceRooms, setShowConferenceRooms] = useState(false); // State for showing conference rooms only
     const [time, setTime] = useState(12); // Initial time
     const [selectedRoomHover, setSelectedRoomHover] = useState(null);
     //New debugging code
@@ -132,6 +133,7 @@ function MapboxContainer({username}) {
                     setDebugInfo={setDebugInfo}
                     showTimeSeries={showTimeSeries}
                     showRoomNames={showRoomNames}
+                    showConferenceRooms={showConferenceRooms}
                     time={time}
                     setTime={setTime}
                     setSelectedRoomHover={setSelectedRoomHover}
@@ -185,6 +187,14 @@ function MapboxContainer({username}) {
                             onChange={() => setShowRoomNames(!showRoomNames)}
                         />
                         Show Room Names
+                    </label>
+                    <label>
+                        <input
+                            type="checkbox"
+                            checked={showConferenceRooms}
+                            onChange={() => setShowConferenceRooms(!showConferenceRooms)}
+                        />
+                        Show Conference Rooms Only
                     </label>
                 </div>
 
