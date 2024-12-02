@@ -10,7 +10,6 @@ const geoJSONCollection = {
                 "RoomID": "R101",
                 "Name": "Truck Bay",
                 "Rentable": true,
-                "Rented": true,
             },
             "geometry": {
                 "type": "Polygon",
@@ -70,8 +69,6 @@ const geoJSONCollection = {
                 "RoomID": "R102",
                 "Name": "Service and Storage",
                 "Rentable": true,
-                "Rented": false,
-                "Apporval_Needed": false
             },
             "geometry": {
                 "type": "Polygon",
@@ -114,9 +111,6 @@ const geoJSONCollection = {
             "properties": {
                 "RoomID": "R103",
                 "Name": "Building Services Office",
-                "Rentable": true,
-                "Rented": false,
-                "Approval_Needed": true
             },
             "geometry": {
                 "type": "Polygon",
@@ -167,8 +161,6 @@ const geoJSONCollection = {
             "properties": {
                 "RoomID": "R104",
                 "Name": "Bowling",
-                "Rentable": true,
-                "Rented": false,
             },
             "geometry": {
                 "type": "Polygon",
@@ -462,10 +454,6 @@ const geoJSONCollection = {
                 "type": "Feature",
                 "properties": {
                 "RoomID": "R401",
-                    //edited name here to simulate a conferenece Room
-                    "Name": "Conference Room",
-                    "Rentable": true,
-                    "Rented": false,
                     "Label": null,
                     "SHAPE_Leng": 0.00473181661376,
                     "SHAPE_Area": 8.96614151744e-8
@@ -1675,7 +1663,8 @@ const geoJSONCollection = {
                 "type": "Feature",
                 "properties": {
                 "RoomID": "R421",
-                    "Name": null,
+                "Name": "Conference Room B",
+                "Rentable": true,
                     "Label": null,
                     "SHAPE_Leng": 0.000347825314215,
                     "SHAPE_Area": 7.49839291749e-9
@@ -1712,7 +1701,8 @@ const geoJSONCollection = {
                 "type": "Feature",
                 "properties": {
                 "RoomID": "R422",
-                    "Name": null,
+                "Name": "Conference Room C",
+                "Rentable": true,
                     "Label": null,
                     "SHAPE_Leng": 0.000374979112915,
                     "SHAPE_Area": 8.66174997075e-9
@@ -1924,7 +1914,8 @@ const geoJSONCollection = {
                 "type": "Feature",
                 "properties": {
                 "RoomID": "R426",
-                    "Name": null,
+                "Name": "Conference Room D",
+                "Rentable": true,
                     "Label": null,
                     "SHAPE_Leng": 0.000571835723746,
                     "SHAPE_Area": 1.82151078121e-8
@@ -2103,7 +2094,8 @@ const geoJSONCollection = {
                 "type": "Feature",
                 "properties": {
                 "RoomID": "R429",
-                    "Name": null,
+                "Name": "Conference Room A",
+                "Rentable": true,
                     "Label": null,
                     "SHAPE_Leng": 0.000349932371959,
                     "SHAPE_Area": 5.60769131071e-9
