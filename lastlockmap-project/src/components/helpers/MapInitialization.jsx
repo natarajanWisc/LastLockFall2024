@@ -288,7 +288,7 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
                             lastEntry: feature.properties.LastEntry || 'No recent entries',
                             lockBattery: feature.properties.LockBattery || 'Unknown',
                             x: markerPosition.x,
-                            y: markerPosition.y,
+                            y: markerPosition.y-20,
                             color: el.style.backgroundColor
                         });
                     });
@@ -388,7 +388,7 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
                         lastEntry: feature.properties.LastEntry || 'No recent entries',
                         lockBattery: feature.properties.LockBattery || 'Unknown',
                         x: markerPosition.x,
-                        y: markerPosition.y,
+                        y: markerPosition.y - 20,
                         color: el.style.backgroundColor
                     });
                 });
