@@ -5,7 +5,7 @@ import locksGeoJSON from '../../assets/locks';
 const PADDING = 50;
 const ANIM_DUR = 3000;
 
-const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRef, setSelectedRoom, setDebugInfo, showTimeSeries, showRoomNames, time, setTime, setSelectedRoomHover }) => {
+const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRef, setSelectedRoom, setDebugInfo, showTimeSeries, showRoomNames, showConferenceRooms, time, setTime, setSelectedRoomHover }) => {
 
     // clears markers when new floor plan is selected  
     const clearMarkers = () => {
@@ -193,6 +193,10 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
 
 
         selectedBuilding.geoJSON.features.forEach((feature, index) => {
+            // If showConferenceRooms is true, skip non-rentable rooms
+            if (showConferenceRooms && !feature.properties.Rentable) {
+                return; // Skip this feature
+            }
             if (feature.geometry.type === 'Polygon') {
                 const coordinates = feature.geometry.coordinates[0];
                 const center = coordinates.reduce(
@@ -275,27 +279,27 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
                     // Add hover and click event listeners to the element
                     // el.addEventListener('mouseenter', () => updateHighlight(feature));
                     // el.addEventListener('mouseleave', clearHighlight);
-                el.addEventListener('mouseover', () => {
-                    updateHighlight(feature);
-                    const markerPosition = mapRef.current.project(center);
-                    setSelectedRoomHover({
-                        name: feature.properties.Name || `Room ${index + 1}`,
-                        hours: feature.properties.Hours || 'Not specified',
-                        lastEntry: feature.properties.LastEntry || 'No recent entries',
-                        lockBattery: feature.properties.LockBattery || 'Unknown',
-                        x: markerPosition.x,
-                        y: markerPosition.y,
-                        color: el.style.backgroundColor
+                    el.addEventListener('mouseover', () => {
+                        updateHighlight(feature);
+                        const markerPosition = mapRef.current.project(center);
+                        setSelectedRoomHover({
+                            name: feature.properties.Name || `Room ${index + 1}`,
+                            hours: feature.properties.Hours || 'Not specified',
+                            lastEntry: feature.properties.LastEntry || 'No recent entries',
+                            lockBattery: feature.properties.LockBattery || 'Unknown',
+                            x: markerPosition.x,
+                            y: markerPosition.y,
+                            color: el.style.backgroundColor
+                        });
                     });
-                });
-    
-                // handle mouse leave to remove hover
-                el.addEventListener('mouseleave', () => {
-                    setTimeout(() => {
-                        setSelectedRoomHover(null);
-                        clearHighlight();
-                    }, 200); 
-                });
+        
+                    // handle mouse leave to remove hover
+                    el.addEventListener('mouseleave', () => {
+                        setTimeout(() => {
+                            setSelectedRoomHover(null);
+                            clearHighlight();
+                        }, 200); 
+                    });
 
                     const marker = new mapboxgl.Marker(el)
                         .setLngLat(center)
@@ -635,7 +639,7 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
         clearMarkers();
         addRoomMarkers();
 
-    }, [showRoomNames]);
+    }, [showRoomNames, showConferenceRooms]);
 
     return null;
 };
