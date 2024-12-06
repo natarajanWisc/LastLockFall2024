@@ -18,13 +18,14 @@ function MapboxContainer({username}) {
     const [selectedRoom, setSelectedRoom] = useState(null);
     const [selectedBuilding, setSelectedBuilding] = useState(null); // selected floor plan
     const [buildings, setBuildings] = useState([]); // set of all floor plans
-    const [mapInitialized, setMapInitialized] = useState(false);
+    const [mapInitialized, setMapInitialized] = useState(false); // State for map being initialized
     const [showTimeSeries, setShowTimeSeries] = useState(false); // State for time series checkbox
     const [showRoomNames, setShowRoomNames] = useState(false); // State for room names checkbox
     const [showConferenceRooms, setShowConferenceRooms] = useState(false); // State for showing conference rooms only
-    const [time, setTime] = useState(12); // Initial time
-    const [selectedRoomHover, setSelectedRoomHover] = useState(null);
-    //New debugging code
+    const [time, setTime] = useState(12); // Initial time for time series
+    const [selectedRoomHover, setSelectedRoomHover] = useState(null); // State for which room is being hovered over
+
+    // Debugging code if necessary
     const [debugInfo, setDebugInfo] = useState({
         startingZoom: null,
         startingFitBounds: null,
@@ -51,7 +52,7 @@ function MapboxContainer({username}) {
         } else if (username === 'eligauger') {
             buildingsArray = buildingsArray.filter(building => building.id === 'UNION_SOUTH_I');
         }
-        // sets the available floor plans for the specific user
+        // Sets the available floor plans for the specific user
         setBuildings(buildingsArray);
     }, []);
 
@@ -83,12 +84,14 @@ function MapboxContainer({username}) {
     }, []);
 
 
-    // handles a floor plan being selected by the user
+    // Handles a floor plan being selected by the user
     function handleFloorSelection(event) {
         const buildingId = event.target.value;
         const selected = buildings.find(building => building.id === buildingId);
         setSelectedBuilding(selected);
     }
+
+    // Handles a time change for heatmap
     const handleTimeChange = (event) => {
         const hour = parseInt(event.target.value);
         setTime(hour);
@@ -110,6 +113,7 @@ function MapboxContainer({username}) {
         <div className="outer-container">
             <div className='inner-container'>
                 <div className="dropdown-container">
+                    {/* Drop down menu for all available floor plans */}
                     <select
                         value={selectedBuilding ? selectedBuilding.id : ""}
                         className='dropdown-menu'
@@ -123,6 +127,7 @@ function MapboxContainer({username}) {
                         ))} 
                     </select>
                 </div>
+                {/* Map Container */}
                 <div ref={mapContainerRef} className="mapbox-container" />
                 <MapInitialization
                     mapRef={mapRef}
@@ -141,7 +146,6 @@ function MapboxContainer({username}) {
                 />
                 <AnimatePresence mode='wait'>
                     {selectedRoom && (
-                        
                             <RoomModal
                                 room={selectedRoom}
                                 onClose={() => setSelectedRoom(null)}
@@ -170,8 +174,9 @@ function MapboxContainer({username}) {
                     maxWidth: '300px',
                     zIndex: 1000,
                 }}>
-                
+                {/* Top left selection menu for handling time series, displaying full room names, and displaying only conference rooms */}
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    {/* Show Time Series */}
                     <label>
                         <input
                             type="checkbox"
@@ -180,6 +185,7 @@ function MapboxContainer({username}) {
                         />
                         Show Time Series
                     </label>
+                    {/* Show Room Names */}
                     <label>
                         <input
                             type="checkbox"
@@ -188,6 +194,7 @@ function MapboxContainer({username}) {
                         />
                         Show Room Names
                     </label>
+                    {/* Show Conference Rooms */}
                     <label>
                         <input
                             type="checkbox"

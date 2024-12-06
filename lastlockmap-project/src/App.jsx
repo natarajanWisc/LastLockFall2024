@@ -18,7 +18,7 @@ function App() {
     // In a real application, you'd validate login credentials with an API
     console.log('Logged in:', { username, password });
     
-    // You could validate here before setting loggedIn to true
+    // You could validate here before setting loggedIn to true. For now, usernames are "admin," "joeuntrecht," or "eligauger" and password is always "password"
     if ((username === 'admin' || username === 'joeuntrecht' || username === 'eligauger') && password === 'password') {
       setUsername(username)
       setLoggedIn(true);
@@ -27,11 +27,12 @@ function App() {
     }
   };
 
-  //what does <Navigation /> do?
   return (
+    // Routing logic
     <Router>
       <Navigation/>
       <Routes>
+        {/* If logged-in, show mapbox container. Else: login page*/}
         {loggedIn ? <Route path="/" element={<MapboxContainer username={username} />}/>: <Route path="/" element= {<LoginPage onLogin={handleLogin} />}/>}
         <Route path="/new-map-page" element={<NewMapPage />} />
         <Route path="/conference-rooms" element={<ConferenceRooms username={username} />} />      
