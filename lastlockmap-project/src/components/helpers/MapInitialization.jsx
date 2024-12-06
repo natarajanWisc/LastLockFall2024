@@ -193,10 +193,11 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
 
 
         selectedBuilding.geoJSON.features.forEach((feature, index) => {
-            // If showConferenceRooms is true, skip non-rentable rooms
+            // If showConferenceRooms is true, skip non-rentable rooms and show only the conference rooms
             if (showConferenceRooms && !feature.properties.Rentable) {
                 return; // Skip this feature
             }
+
             if (feature.geometry.type === 'Polygon') {
                 const coordinates = feature.geometry.coordinates[0];
                 const center = coordinates.reduce(
@@ -204,7 +205,7 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
                     [0, 0]
                 ).map(sum => sum / coordinates.length);
 
-
+                // If showRoomNames is true, display all room names instead of markers
                 if (showRoomNames) {
                     const el = document.createElement('div');
                     el.className = 'room-box';
@@ -277,8 +278,6 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
                     });
 
                     // Add hover and click event listeners to the element
-                    // el.addEventListener('mouseenter', () => updateHighlight(feature));
-                    // el.addEventListener('mouseleave', clearHighlight);
                     el.addEventListener('mouseover', () => {
                         updateHighlight(feature);
                         const markerPosition = mapRef.current.project(center);
@@ -293,7 +292,7 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
                         });
                     });
         
-                    // handle mouse leave to remove hover
+                    // Handle mouse leave to remove hover
                     el.addEventListener('mouseleave', () => {
                         setTimeout(() => {
                             setSelectedRoomHover(null);
@@ -316,7 +315,7 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
                     border-radius: 50%;
                     cursor: pointer;
                 `;
-                    // Edit colors based on renting conditions: JUST BTW: These conditional IFS should be changed after Justin's work with renting room is done
+                    // Edit colors based on renting conditions
                     if (feature.properties.Rentable) {
                         const roomId = feature.properties.RoomID;
                         const booking = mockBookings.find(
@@ -369,16 +368,14 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
                             lastEntry: feature.properties.LastEntry || 'No recent entries',
                             lockBattery: feature.properties.LockBattery || 'Unknown',
                             clickCoords: {
-                                x: rect.x,
-                                y: rect.y
+                                x: rect.x - 200,
+                                y: rect.y - 100
                             },
                         color: el.style.backgroundColor
                         });
                     });
 
-                    // Add hover and click event listeners to the element
-                    // el.addEventListener('mouseenter', () => updateHighlight(feature));
-                    // el.addEventListener('mouseleave', clearHighlight);
+                // Add hover and click event listeners to the element
                 el.addEventListener('mouseover', () => {
                     updateHighlight(feature);
                     const markerPosition = mapRef.current.project(center);
@@ -393,7 +390,7 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
                     });
                 });
     
-                // handle mouse leave to remove hover
+                // Handle mouse leave to remove hover
                 el.addEventListener('mouseleave', () => {
                     setTimeout(() => {               
                         // Clear hover state if not interacting with modal or marker
@@ -466,7 +463,7 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
 
 
 
-    // Functions for updating and clearing highlight
+    // Function for updating room highlight
     const updateHighlight = (feature) => {
         mapRef.current.getSource('highlighted-room').setData({
             type: 'FeatureCollection',
@@ -474,13 +471,13 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
         });
     };
 
+    // Function for updating room highlight
     const clearHighlight = () => {
         mapRef.current.getSource('highlighted-room').setData({
             type: 'FeatureCollection',
             features: []
         });
     };
-
 
     // Effect for handling building selection changes
     useEffect(() => {
@@ -539,7 +536,7 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
 
     }, [selectedBuilding, mapInitialized]);
 
-    // Function to clear or hide the locks-circles layer
+    // Function to clear the locks-circles layer
     const clearLocksCirclesLayer = () => {
         if (mapRef.current) {
             // Check if the layer exists before removing it
@@ -550,6 +547,7 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
         }
     };
 
+    // Function to add the locks-circles layer
     const addLocksCirclesLayer = () => {
         if (mapRef.current){
             if (!mapRef.current.getLayer('locks-circles')) {
@@ -634,6 +632,7 @@ const MapInitialization = ({ mapRef, selectedBuilding, mapInitialized, markersRe
         
     }, [showTimeSeries]);
 
+    // Effect for handling showRoomNames or showConferenceRooms change: Clear and re-add all room markers
     useEffect(() => {
         if (!mapRef.current || !mapRef.current.getStyle()) return;
         clearMarkers();

@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import styles from './LoginPage.module.css'; // Import your CSS module
+import styles from './LoginPage.module.css';
 import BackgroundImage from "../assets/MadisonBackground.png";
 import Logo from "../assets/logo.png";
 
 const LoginPage = ({ onLogin }) => {
-  const [inputUsername, setInputUsername] = useState("");
-  const [inputPassword, setInputPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [inputUsername, setInputUsername] = useState(""); // State variable for username
+  const [inputPassword, setInputPassword] = useState(""); // State variable for password
+  const [loading, setLoading] = useState(false); // State variable for page loading
 
+  // Handle login submit
   const handleSubmit = (event) => {
     event.preventDefault();
     setLoading(true);
@@ -26,6 +27,7 @@ const LoginPage = ({ onLogin }) => {
         backgroundImage: `url(${BackgroundImage})`,
       }}
     >
+      
       <div className={styles.container}>
         <div className={styles.logoContainer}>
           <img src={Logo} alt="Logo" className={styles.logo} />
@@ -33,6 +35,7 @@ const LoginPage = ({ onLogin }) => {
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>
+          {/* Username Input */}
           <div className={styles.formGroup}>
             <label htmlFor="username" className={styles.label}>Username</label>
             <input
@@ -46,6 +49,7 @@ const LoginPage = ({ onLogin }) => {
             />
           </div>
 
+          {/* Password Input */}
           <div className={styles.formGroup}>
             <label htmlFor="password" className={styles.label}>Password</label>
             <input
@@ -59,6 +63,7 @@ const LoginPage = ({ onLogin }) => {
             />
           </div>
 
+          {/* Submit or Login button */}
           <button type="submit" className={styles.button} disabled={loading}>
             {loading ? "Logging In..." : "Log In"}
           </button>
