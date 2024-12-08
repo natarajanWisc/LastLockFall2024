@@ -2,7 +2,9 @@ import React from 'react';
 import Icon from '@mdi/react';
 import { mdiBellOutline, mdiBell, mdiBellAlert } from '@mdi/js';
 
+// handles the logic for the time selection popup menu
 const NotiMenu = ({ isOpen, onStatusChange, currentStatus }) => {
+    // styles for component
     const notificationMenuStyle = {
         position: 'absolute',
         top: '-178px',
@@ -14,7 +16,6 @@ const NotiMenu = ({ isOpen, onStatusChange, currentStatus }) => {
         zIndex: 1001,
         width: '160px'
     };
-
     const menuItemStyle = {
         padding: '8px 12px',
         color: '#FFFFFF',
@@ -25,7 +26,6 @@ const NotiMenu = ({ isOpen, onStatusChange, currentStatus }) => {
             backgroundColor: '#555555'
         },
     };
-
     const bellIconStyle = {
         position: 'absolute',
         top: '-5px',
@@ -33,17 +33,19 @@ const NotiMenu = ({ isOpen, onStatusChange, currentStatus }) => {
         cursor: 'pointer'
     };
 
+    // alters which bell icon is shown
     const renderBellIcon = () => {
         switch(currentStatus) {
-            case 'always':
+            case 'always': // if current status is 'always', shows filled bell with !
                 return <Icon path={mdiBellAlert} size={1} color="white" style={bellIconStyle}/>;
-            case 'afterHours':
+            case 'afterHours': // if current status is 'afterHours', shows filled bell
                 return <Icon path={mdiBell} size={1} color="white" style={bellIconStyle}/>;
-            default:
+            default: // if current status is 'afterHours', shows bell outline
                 return <Icon path={mdiBellOutline} size={1} color="white" style={bellIconStyle}/>;
         }
     };
 
+    // pulls up a small modal with a notification selection menu
     return (
         <>
             {isOpen && (
