@@ -9,6 +9,7 @@ import { Bar } from 'react-chartjs-2';
 import locksGeoJSON from '../assets/locks';
 ChartJS.register(...registerables);
 
+// handles the logic for modal that pops up when a room is selected
 const RoomModal = ({ room, onClose }) => {
     const [isLogOpen, setIsLogOpen] = useState(false);
     const [alertStatus, setAlertStatus] = useState("off")
@@ -21,7 +22,8 @@ const RoomModal = ({ room, onClose }) => {
         opening: null,
         closing: null
     });
-    const [, forceUpdate] = useState({})
+    const [, forceUpdate] = useState({}) // state variable to help updating hours
+    
     const aggregateDataForBarChart = () => {
         const roomData = locksGeoJSON.features.filter(feature => feature.properties.name === room.name);
         const hours = Array.from({ length: 24 }, (_, i) => i);
@@ -33,21 +35,22 @@ const RoomModal = ({ room, onClose }) => {
     };
 
     useEffect(() => {
-        const savedHours = localStorage.getItem(getHoursStorageKey());
-        const savedAlertStatus = localStorage.getItem(getAlertStorageKey());
+        const savedHours = localStorage.getItem(getHoursStorageKey()); // get hours from storage
+        const savedAlertStatus = localStorage.getItem(getAlertStorageKey()); // get notification alert status
         
-        if (savedHours) {
+        if (savedHours) { // set the current opening and closing hours
             const [opening, closing] = savedHours.split(' - ');
             if (opening !== 'Set Open') hoursRef.current.opening = opening;
             if (closing !== 'Set Close') hoursRef.current.closing = closing;
             forceUpdate({});
         }
 
-        if (savedAlertStatus) {
+        if (savedAlertStatus) { // set current notification alert status
             setAlertStatus(savedAlertStatus);
         }
     }, [room]);
 
+    // styling for component
     const modalContainerStyle = {
         position: 'fixed',
         top: 0,
@@ -60,7 +63,6 @@ const RoomModal = ({ room, onClose }) => {
         zIndex: 1000,
         pointerEvents: 'none',
     };
-
     const modalStyle = {
         backgroundColor: '#333333',
         border: `2px solid ${room.color || '#4091F7'}`,
@@ -74,7 +76,6 @@ const RoomModal = ({ room, onClose }) => {
         pointerEvents: 'auto',
         position: 'relative'
     };
-
     const headerStyle = {
         color: '#FFFFFF',
         marginTop: '0',
@@ -84,7 +85,6 @@ const RoomModal = ({ room, onClose }) => {
         position: 'relative',
         fontSize: '24px'
     };
-
     const hoursInfoStyle = {
         color: '#FFFFFF',
         marginBottom: '10px',
@@ -93,7 +93,6 @@ const RoomModal = ({ room, onClose }) => {
         alignItems: 'center',
         gap: '12px'
     };
-
     const timePickerStyle = {
         position: 'fixed',
         top: 0,
@@ -107,7 +106,6 @@ const RoomModal = ({ room, onClose }) => {
         // transform: 'translateY(-100%)', // Move up by its own height
         zIndex: 1001
     };
-
     const logInfoStyle = {
         color: '#FFFFFF',
         marginBottom: '10px',
@@ -116,7 +114,6 @@ const RoomModal = ({ room, onClose }) => {
         flexDirection: 'column',
         gap: '12px'
     };
-
     const logLineStyle = {
         color: '#FFFFFF',
         marginBottom: '10px',
@@ -124,7 +121,6 @@ const RoomModal = ({ room, onClose }) => {
         fontSize: '16px',
         fontStyle: 'normal'
     };
-
     const closeButtonStyle = {
         backgroundColor: 'transparent', 
         color: '#FFF',             
@@ -134,8 +130,6 @@ const RoomModal = ({ room, onClose }) => {
         cursor: 'pointer',            
         float: 'right',      
     };
-    
-
     const dropdownStyle = {
         backgroundColor: '#444444',
         border: '1px solid #4091F7',
@@ -143,12 +137,10 @@ const RoomModal = ({ room, onClose }) => {
         maxHeight: '200px',
         overflowY: 'auto',
     };
-
     const dropdownItemStyle = {
         padding: '10px',
         borderBottom: '1px solid #555555',
     };
-
     const toggleLogStyle = {
         backgroundColor: 'transparent',
         border: 'none',
@@ -169,6 +161,7 @@ const RoomModal = ({ room, onClose }) => {
         return `alert_status_${room.name.toLowerCase().replace(/\s+/g, '_')}`;
     };
 
+    // creating battery icon 
     const BatteryIcon = ({ percentage }) => (
         <svg width="26" height="14" viewBox="0 0 40 20" style={{ position: 'absolute', top: '0', right: '0' }}>
             <rect x="1" y="1" width="34" height="18" rx="3" ry="3" fill="none" stroke="white" strokeWidth="2" />
@@ -177,27 +170,33 @@ const RoomModal = ({ room, onClose }) => {
         </svg>
     );
 
-    const sortedLog = [...roomLog].sort((a, b) => new Date(`${b.date} ${b.time}`) - new Date(`${a.date} ${a.time}`));
-
-    const mostRecent =  `${roomLog[0].name} (${roomLog[0].hierarchy}) - ${roomLog[0].date} ${roomLog[0].time}`
+    // Sort the room log entries in descending order (most recent first) based on the date and time
+    const sortedLog = [...roomLog].sort((a, b) => new Date(`${b.date} ${b.time}`) - new Date(`${a.date} ${a.time}`)); 
+ 
+    // Formatted string for log entry, showing name, hierarchy, date, and time
+    const mostRecent = `${roomLog[0].name} (${roomLog[0].hierarchy}) - ${roomLog[0].date} ${roomLog[0].time}`; 
     
+    // handles the set time button being set
     const handleTimeSet = (time, type) => {
+        // ensures the current time is updated
         if (type === 'opening') {
             hoursRef.current.opening = time;
         } else {
             hoursRef.current.closing = time;
         }
         const hours = `${hoursRef.current.opening || 'Set Open'} - ${hoursRef.current.closing || 'Set Close'}`;
-        localStorage.setItem(getHoursStorageKey(), hours);
+        localStorage.setItem(getHoursStorageKey(), hours); // saves time to local storage
         forceUpdate({});
     };
 
+    // handles notification alert status changing
     const handleNotiChange = (status) => {
         setAlertStatus(status);
-        localStorage.setItem(getAlertStorageKey(), status);
+        localStorage.setItem(getAlertStorageKey(), status); // saves notification alert status to local storage
         setIsNotiMenuOpen(false);
     };
 
+    // modal animation styling
     const modalVariants = {
         initial: {
             scale: 0.3,
@@ -251,6 +250,7 @@ const RoomModal = ({ room, onClose }) => {
                 variants={modalVariants}
                 style={modalStyle}
             >
+                {/* header of modal (name, notification icon, battery icon) */}
                 <h2 style={headerStyle}>
                     {room.name}
                     <div 
@@ -265,6 +265,7 @@ const RoomModal = ({ room, onClose }) => {
                     </div>
                     <BatteryIcon percentage={batteryPercentage} />
                 </h2>
+                {/* showing room hours in room modal */}
                 <p style={hoursInfoStyle}>
                     <strong>Hours:</strong> 
                     <span 
@@ -289,6 +290,7 @@ const RoomModal = ({ room, onClose }) => {
                         {hoursRef.current.closing || 'Set Close'}
                     </span>
                 </p>
+                {/* recent entries log */}
                 <div style={logInfoStyle}>
                     <button onClick={() => setIsLogOpen(!isLogOpen)} style={toggleLogStyle}>
                         <p style={logLineStyle}><strong>Entry Log: </strong>{mostRecent}</p>
@@ -307,7 +309,7 @@ const RoomModal = ({ room, onClose }) => {
                 <Bar data={barChartData} options={barChartOptions} />
                 <button style={closeButtonStyle} onClick={onClose}>Close</button>
 
-                {isTimePickerOpen && (
+                {isTimePickerOpen && ( // show time picker menu if state variable is true
                     <TimePickerMenu
                         isOpen={isTimePickerOpen}
                         onClose={() => {
