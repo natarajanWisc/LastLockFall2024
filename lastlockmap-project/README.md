@@ -22,10 +22,10 @@ Elijah Gauger, Joe Untrecht, Justin Bildner, Patrick Tuohy, and Shreyas Nataraja
 
 ### 4. Conference Room States
 - **Room Filters**: The third toggle filters conference rooms, highlighting their current state:
-  - **Red**: In use.
-  - **Yellow**: Booked and about to be used within the next 30 minutes.
-  - **Green**: Free and available.
-  - **Orange**: Booked but no access logs are recorded, indicating the room is likely free.
+  - **Red**: The room is in use (booked and accessed).
+  - **Yellow**: The room is booked but not accessed yet or is booked within the next 30 minutes.
+  - **Green**: The room is available for at least the next 30 minutes.
+  - **Orange**: The room has been accessed without being booked (unauthorized access).
 
 ### 5. Mock Data and Potential API Integration
 - **Mock Data**: The application currently uses mock access logs and GeoJSON data.
