@@ -79,6 +79,4 @@ Elijah Gauger, Joe Untrecht, Justin Bildner, Patrick Tuohy, and Shreyas Nataraja
    ```
 4. Open the application in your browser.
 
-## License
-This project is licensed under [insert license here].
 
